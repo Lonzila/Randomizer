@@ -1,0 +1,36 @@
+﻿@model Randomizer.Models.Podpodrocje
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Podpodrocje</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Naziv)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Naziv)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Koda)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Koda)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Podrocje)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Podrocje.PodrocjeID)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.PodpodrocjeID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

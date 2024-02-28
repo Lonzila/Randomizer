@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Randomizer.Models.Recenzent>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Sifra)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Priimek)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EPosta)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SteviloProjektov)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Drzava)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sifra)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priimek)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EPosta)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SteviloProjektov)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Drzava)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.RecenzentID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.RecenzentID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.RecenzentID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

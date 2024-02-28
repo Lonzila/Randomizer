@@ -1,0 +1,84 @@
+﻿@model Randomizer.Models.Prijave
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Prijava</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PrijavaID" />
+            <div class="form-group">
+                <label asp-for="StevilkaPrijave" class="control-label"></label>
+                <input asp-for="StevilkaPrijave" class="form-control" />
+                <span asp-validation-for="StevilkaPrijave" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VrstaProjekta" class="control-label"></label>
+                <input asp-for="VrstaProjekta" class="form-control" />
+                <span asp-validation-for="VrstaProjekta" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Drzava" class="control-label"></label>
+                <input asp-for="Drzava" class="form-control" />
+                <span asp-validation-for="Drzava" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PodrocjeID" class="control-label"></label>
+                <select asp-for="PodrocjeID" class="form-control" asp-items="ViewBag.PodrocjeID"></select>
+                <span asp-validation-for="PodrocjeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PodpodrocjeID" class="control-label"></label>
+                <select asp-for="PodpodrocjeID" class="form-control" asp-items="ViewBag.PodpodrocjeID"></select>
+                <span asp-validation-for="PodpodrocjeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DodatnoPodrocjeID" class="control-label"></label>
+                <select asp-for="DodatnoPodrocjeID" class="form-control" asp-items="ViewBag.DodatnoPodrocjeID"></select>
+                <span asp-validation-for="DodatnoPodrocjeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DodatnoPodpodrocjeID" class="control-label"></label>
+                <select asp-for="DodatnoPodpodrocjeID" class="form-control" asp-items="ViewBag.DodatnoPodpodrocjeID"></select>
+                <span asp-validation-for="DodatnoPodpodrocjeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Naslov" class="control-label"></label>
+                <input asp-for="Naslov" class="form-control" />
+                <span asp-validation-for="Naslov" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SteviloRecenzentov" class="control-label"></label>
+                <input asp-for="SteviloRecenzentov" class="form-control" />
+                <span asp-validation-for="SteviloRecenzentov" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PartnerskaAgencija1" class="control-label"></label>
+                <input asp-for="PartnerskaAgencija1" class="form-control" />
+                <span asp-validation-for="PartnerskaAgencija1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PartnerskaAgencija2" class="control-label"></label>
+                <input asp-for="PartnerskaAgencija2" class="form-control" />
+                <span asp-validation-for="PartnerskaAgencija2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
