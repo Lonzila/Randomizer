@@ -1,0 +1,34 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<Randomizer.Models.GrozdiViewModel>
+
+<div>
+    @foreach (var grozd in Model)
+    {
+        <div>
+            <h2>Grozd ID: @grozd.GrozdID, Podpodročje: @grozd.PodpodrocjeNaziv</h2>
+            <h3>Prijave:</h3>
+            <ul>
+                @foreach (var prijava in grozd.Prijave)
+                {
+                    <li>
+                        Prijava ID: @prijava.PrijavaID, Številka prijave: @prijava.StevilkaPrijave, Naslov: @prijava.Naslov,
+                        Interdisciplinarna: @(prijava.Interdisc ? "Da" : "Ne"), Število recenzentov: @prijava.SteviloRecenzentov
+                    </li>
+                }
+            </ul>
+            <h3>Recenzenti:</h3>
+            <ul>
+                @foreach (var recenzent in grozd.Recenzenti)
+                {
+                    <li>
+                        Recenzent: @recenzent.Ime @recenzent.Priimek, Podpodročja: @string.Join(", ", recenzent.Podpodrocja)
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>

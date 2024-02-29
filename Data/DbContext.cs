@@ -32,6 +32,6 @@ namespace Randomizer.Data
         public DbSet<PrijavaGrozdi> PrijavaGrozdi { get; set; }
         public DbSet<GrozdiRecenzenti> GrozdiRecenzenti { get; set; }
         public DbSet<RecenzentiPodrocja> RecenzentiPodrocja { get; set; }
-
+        public DbSet<RecenzentiZavrnitve> RecenzentiZavrnitve { get; set; }
     }
 }

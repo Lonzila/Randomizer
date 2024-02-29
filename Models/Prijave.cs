@@ -15,9 +15,10 @@ namespace Randomizer.Models
         public int? DodatnoPodpodrocjeID { get; set; }
         public string Naslov { get; set; }
         public int SteviloRecenzentov { get; set; }
+        public bool? Interdisc { get; set; }
         public string? PartnerskaAgencija1 { get; set; }
         public string? PartnerskaAgencija2 { get; set; }
-
+         
         // Navigacijske lastnosti
         public Podrocje Podrocje { get; set; }
         public Podpodrocje Podpodrocje { get; set; }

@@ -6,11 +6,11 @@ namespace Randomizer.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly DodeljevanjeRecenzentovService _dodeljevanjeRecenzentovService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService)
         {
-            _logger = logger;
+            _dodeljevanjeRecenzentovService = dodeljevanjeRecenzentovService;
         }
 
         public IActionResult Index()
@@ -18,15 +18,16 @@ namespace Randomizer.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> DodeliRecenzente()
         {
-            return View();
+            await _dodeljevanjeRecenzentovService.DodeliRecenzenteAsync();
+            return RedirectToAction("PrikazGrozdov", "Dodeljevanje");
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public async Task<IActionResult> PocistiDodelitve()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            await _dodeljevanjeRecenzentovService.PocistiDodelitveRecenzentovAsync();
+            return RedirectToAction("Index"); // Ali kamor koli že želite preusmeriti uporabnika po èišèenju
         }
     }
 }

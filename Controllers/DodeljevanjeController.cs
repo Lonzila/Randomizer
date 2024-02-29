@@ -14,4 +14,10 @@ public class DodeljevanjeController : Controller
         await _dodeljevanjeRecenzentovService.DodeliRecenzenteAsync();
         return Ok("Recenzenti so bili dodeljeni.");
     }
+    public async Task<IActionResult> PrikazGrozdov()
+    {
+        var grozdi = await _dodeljevanjeRecenzentovService.PridobiInformacijeZaIzpisAsync();
+        return View(grozdi);
+    }
+  
 }
