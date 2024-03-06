@@ -18,7 +18,6 @@ public static class PartnerskaAgencijaDrzavaMap
         { "SNSF", "Švica" }
         // Dodajte vse druge ustrezne mape
     };
-
     public static string PretvoriVDrzavo(string kodaAgencije)
     {
         if (KodaNaDrzavo.TryGetValue(kodaAgencije, out string drzava))
@@ -211,8 +210,9 @@ public class DodeljevanjeRecenzentovService
 
         if (izloceniRecenzentiCOI.Any())
         {
-            Console.WriteLine($"Najdeni so bili recenzenti s konfliktom interesov za grozd {grozd.GrozdID}. Izločeni recenzenti: {string.Join(", ", izloceniRecenzentiCOI)}");
+            Console.WriteLine($"--------Najdeni so bili recenzenti s konfliktom interesov za grozd {grozd.GrozdID}. Izločeni recenzenti: {string.Join(", ", izloceniRecenzentiCOI)}");
         }
+        
 
         //-------------------------------------------------------------------------------------
 
@@ -244,17 +244,49 @@ public class DodeljevanjeRecenzentovService
             return recenzentiZDovoljProstora;
         }
 
-        // Naključno izberite recenzente iz filtrirane liste recenzentov z dovolj prostora
-        var nakljucniRecenzenti = new List<Recenzent>();
-        var random = new Random();
-        for (int i = 0; i < 2; i++)
-        {
-            int index = random.Next(recenzentiZDovoljProstora.Count);
-            nakljucniRecenzenti.Add(recenzentiZDovoljProstora[index]);
-            recenzentiZDovoljProstora.RemoveAt(index); // Odstranite, da preprečite ponovno izbiro
-        }
+        // Pridobite seznam RecenzentID, ki so izločeni zaradi osebnih razlogov za te prijave
+        var izloceniRecenzentiOsebni = await _context.IzloceniOsebni
+            .Where(osebni => prijaveVGrozd.Contains(osebni.PrijavaID))
+            .Select(osebni => osebni.RecenzentID)
+            .Distinct()
+            .ToListAsync();
 
-        return nakljucniRecenzenti;
+        // Izločite recenzente, ki so na seznamu izločenih zaradi osebnih razlogov
+        var recenzentiZDovoljProstoraPlusOsebni = recenzentiZDovoljProstora
+            .Where(r => !izloceniRecenzentiOsebni.Contains(r.RecenzentID))
+            .ToList();
+
+        if (izloceniRecenzentiCOI.Any())
+        {
+            Console.WriteLine($"------------Najdeni so bili recenzenti za izloceni osebno v grozdu {grozd.GrozdID}. Izločeni recenzenti: {string.Join(", ", izloceniRecenzentiCOI)}");
+        }
+        if (recenzentiZDovoljProstoraPlusOsebni.Count > 2)
+        {
+            // Naključno izberite recenzente iz filtrirane liste recenzentov z dovolj prostora
+            var nakljucniRecenzenti = new List<Recenzent>();
+            var random = new Random();
+            for (int i = 0; i < 2; i++)
+            {
+                int index = random.Next(recenzentiZDovoljProstoraPlusOsebni.Count);
+                nakljucniRecenzenti.Add(recenzentiZDovoljProstoraPlusOsebni[index]);
+                recenzentiZDovoljProstoraPlusOsebni.RemoveAt(index); // Odstranite, da preprečite ponovno izbiro
+            }
+            return nakljucniRecenzenti;
+
+        } else
+        {
+            // Naključno izberite recenzente iz filtrirane liste recenzentov z dovolj prostora
+            var nakljucniRecenzenti = new List<Recenzent>();
+            var random = new Random();
+            for (int i = 0; i < 2; i++)
+            {
+                int index = random.Next(recenzentiZDovoljProstora.Count);
+                nakljucniRecenzenti.Add(recenzentiZDovoljProstora[index]);
+                recenzentiZDovoljProstora.RemoveAt(index); // Odstranite, da preprečite ponovno izbiro
+            }
+
+            return nakljucniRecenzenti;
+        }
     }
 
     public async Task<List<GrozdiViewModel>> PridobiInformacijeZaIzpisAsync()
