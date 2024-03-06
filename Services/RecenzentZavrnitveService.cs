@@ -52,10 +52,18 @@
                 var grozdId = await PridobiGrozdIdZaPrijavoAsync(zavrnitev.PrijavaID);
                 if (grozdId == null) continue;
 
-                var nadomestniRecenzent = await NajdiNadomestnegaRecenzentaAsync(grozdId.Value, zavrnitev.PrijavaID, zavrnitev.RecenzentID);
-                if (nadomestniRecenzent != null)
+                var originalnaDodelitev = await _context.GrozdiRecenzenti
+                    .FirstOrDefaultAsync(gr => gr.GrozdID == grozdId.Value && gr.PrijavaID == zavrnitev.PrijavaID && gr.RecenzentID == zavrnitev.RecenzentID);
+
+                if (originalnaDodelitev != null)
                 {
-                    DodeliRecenzentaPrijava(nadomestniRecenzent, grozdId.Value, "Recenzent");
+                    var nadomestniRecenzent = await NajdiNadomestnegaRecenzentaAsync(grozdId.Value, zavrnitev.PrijavaID, zavrnitev.RecenzentID);
+                    if (nadomestniRecenzent != null)
+                    {
+                        // Posodobite RecenzentID z ID-jem nadomestnega recenzenta
+                        originalnaDodelitev.RecenzentID = nadomestniRecenzent.RecenzentID;
+                        _context.GrozdiRecenzenti.Update(originalnaDodelitev);
+                    }
                 }
             }
 
@@ -128,15 +136,6 @@
 
             return nakljucniRecenzent;
         }
-        private void DodeliRecenzentaPrijava(Recenzent recenzent, int grozdId, string vloga)
-        {
-            var dodelitev = new GrozdiRecenzenti
-            {
-                GrozdID = grozdId,
-                RecenzentID = recenzent.RecenzentID,
-                Vloga = vloga
-            };
-            _context.GrozdiRecenzenti.Add(dodelitev);
-        }
+        
     }
 }

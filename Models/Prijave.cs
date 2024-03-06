@@ -8,7 +8,6 @@ namespace Randomizer.Models
         public int PrijavaID { get; set; }
         public string StevilkaPrijave { get; set; }
         public string VrstaProjekta { get; set; }
-        public string Drzava { get; set; }
         public int? PodrocjeID { get; set; }
         public int? PodpodrocjeID { get; set; }
         public int? DodatnoPodrocjeID { get; set; }

@@ -29,6 +29,11 @@
                 <span asp-validation-for="Vloga" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="PrijavaID" class="control-label"></label>
+                <select asp-for="PrijavaID" class="form-control" asp-items="ViewBag.PrijavaID"></select>
+                <span asp-validation-for="PrijavaID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

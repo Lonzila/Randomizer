@@ -9,9 +9,11 @@ namespace Randomizer.Models
         public int GrozdID { get; set; }
         public int RecenzentID { get; set; }
         public string Vloga { get; set; }
+        public int PrijavaID { get; set; } // Nova lastnost
 
         // Navigacijske lastnosti
         public Grozdi Grozd { get; set; }
         public Recenzent Recenzent { get; set; }
+        public virtual Prijave Prijava { get; set; }
     }
 }

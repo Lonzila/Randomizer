@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Randomizer.Data;
+using Randomizer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<DodeljevanjeRecenzentovService>();
+builder.Services.AddScoped<RecenzentZavrnitveService>();
 
 var app = builder.Build();
 // Logiranje podatkov o bazi po zagonu aplikacije

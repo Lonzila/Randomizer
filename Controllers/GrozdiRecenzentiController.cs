@@ -22,7 +22,7 @@ namespace Randomizer.Controllers
         // GET: GrozdiRecenzenti
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.GrozdiRecenzenti.Include(g => g.Grozd).Include(g => g.Recenzent);
+            var applicationDbContext = _context.GrozdiRecenzenti.Include(g => g.Grozd).Include(g => g.Prijava).Include(g => g.Recenzent);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,6 +36,7 @@ namespace Randomizer.Controllers
 
             var grozdiRecenzenti = await _context.GrozdiRecenzenti
                 .Include(g => g.Grozd)
+                .Include(g => g.Prijava)
                 .Include(g => g.Recenzent)
                 .FirstOrDefaultAsync(m => m.GrozdRecenzentID == id);
             if (grozdiRecenzenti == null)
@@ -50,6 +51,7 @@ namespace Randomizer.Controllers
         public IActionResult Create()
         {
             ViewData["GrozdID"] = new SelectList(_context.Grozdi, "GrozdID", "GrozdID");
+            ViewData["PrijavaID"] = new SelectList(_context.Prijave, "PrijavaID", "PrijavaID");
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID");
             return View();
         }
@@ -59,7 +61,7 @@ namespace Randomizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GrozdRecenzentID,GrozdID,RecenzentID,Vloga")] GrozdiRecenzenti grozdiRecenzenti)
+        public async Task<IActionResult> Create([Bind("GrozdRecenzentID,GrozdID,RecenzentID,Vloga,PrijavaID")] GrozdiRecenzenti grozdiRecenzenti)
         {
             if (ModelState.IsValid)
             {
@@ -68,6 +70,7 @@ namespace Randomizer.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["GrozdID"] = new SelectList(_context.Grozdi, "GrozdID", "GrozdID", grozdiRecenzenti.GrozdID);
+            ViewData["PrijavaID"] = new SelectList(_context.Prijave, "PrijavaID", "PrijavaID", grozdiRecenzenti.PrijavaID);
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID", grozdiRecenzenti.RecenzentID);
             return View(grozdiRecenzenti);
         }
@@ -86,6 +89,7 @@ namespace Randomizer.Controllers
                 return NotFound();
             }
             ViewData["GrozdID"] = new SelectList(_context.Grozdi, "GrozdID", "GrozdID", grozdiRecenzenti.GrozdID);
+            ViewData["PrijavaID"] = new SelectList(_context.Prijave, "PrijavaID", "PrijavaID", grozdiRecenzenti.PrijavaID);
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID", grozdiRecenzenti.RecenzentID);
             return View(grozdiRecenzenti);
         }
@@ -95,7 +99,7 @@ namespace Randomizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GrozdRecenzentID,GrozdID,RecenzentID,Vloga")] GrozdiRecenzenti grozdiRecenzenti)
+        public async Task<IActionResult> Edit(int id, [Bind("GrozdRecenzentID,GrozdID,RecenzentID,Vloga,PrijavaID")] GrozdiRecenzenti grozdiRecenzenti)
         {
             if (id != grozdiRecenzenti.GrozdRecenzentID)
             {
@@ -123,6 +127,7 @@ namespace Randomizer.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["GrozdID"] = new SelectList(_context.Grozdi, "GrozdID", "GrozdID", grozdiRecenzenti.GrozdID);
+            ViewData["PrijavaID"] = new SelectList(_context.Prijave, "PrijavaID", "PrijavaID", grozdiRecenzenti.PrijavaID);
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID", grozdiRecenzenti.RecenzentID);
             return View(grozdiRecenzenti);
         }
@@ -137,6 +142,7 @@ namespace Randomizer.Controllers
 
             var grozdiRecenzenti = await _context.GrozdiRecenzenti
                 .Include(g => g.Grozd)
+                .Include(g => g.Prijava)
                 .Include(g => g.Recenzent)
                 .FirstOrDefaultAsync(m => m.GrozdRecenzentID == id);
             if (grozdiRecenzenti == null)

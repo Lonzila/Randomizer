@@ -71,16 +71,61 @@ public class DodeljevanjeRecenzentovService
                     {
                         // Dodeli izbranega recenzenta za vse interdisciplinarne prijave v grozdu
                         var vloga = jePrimarnoPodpodrocje ? "Poročevalec" : "Recenzent";
-                        DodeliRecenzentaPrijava(izbraniRecenzent, grozd.GrozdID, vloga);
+                        DodeliRecenzentaPrijava(izbraniRecenzent, grozd.GrozdID, prijava.PrijavaID, vloga);
                     }
                 }
                 else
                 {
-                    // Dodeli oba recenzenta za neinterdisciplinarno prijavo
-                    foreach (var recenzent in recenzenti)
+                    if (prijava.Interdisc == true && prijava.SteviloRecenzentov == 4) 
                     {
-                        DodeliRecenzentaPrijava(recenzent, grozd.GrozdID, "Recenzent");
+
+                        // Preverite, ali je trenutni grozd povezan s primarnim podpodročjem prijave
+                        bool jePrimarnoPodpodrocje = prijava.PodpodrocjeID == grozd.PodpodrocjeID;
+                        if (jePrimarnoPodpodrocje)
+                        {
+                            var i = 0;
+                            // Dodeli oba recenzenta za neinterdisciplinarno prijavo
+                            foreach (var recenzent in recenzenti)
+                            {
+
+                                if (i == 0)
+                                {
+                                    DodeliRecenzentaPrijava(recenzent, grozd.GrozdID, prijava.PrijavaID, "Poročevalec");
+                                }
+                                else
+                                {
+                                    DodeliRecenzentaPrijava(recenzent, grozd.GrozdID, prijava.PrijavaID, "Recenzent");
+                                }
+                                i++;
+                            }
+                        } else
+                        {
+                            foreach (var recenzent in recenzenti)
+                            {
+                               DodeliRecenzentaPrijava(recenzent, grozd.GrozdID, prijava.PrijavaID, "Recenzent");
+                            }
+                        }
+                       
                     }
+                    else
+                    {
+                        var i = 0;
+                        // Dodeli oba recenzenta za neinterdisciplinarno prijavo
+                        foreach (var recenzent in recenzenti)
+                        {
+
+                            if (i == 0)
+                            {
+                                DodeliRecenzentaPrijava(recenzent, grozd.GrozdID, prijava.PrijavaID, "Poročevalec");
+                            }
+                            else
+                            {
+                                DodeliRecenzentaPrijava(recenzent, grozd.GrozdID, prijava.PrijavaID, "Recenzent");
+                            }
+                            i++;
+                        }
+                    }     
+                    
                 }
             }
         }
@@ -89,11 +134,12 @@ public class DodeljevanjeRecenzentovService
 
     }
 
-    private void DodeliRecenzentaPrijava(Recenzent recenzent, int grozdID, string vloga)
+    private void DodeliRecenzentaPrijava(Recenzent recenzent, int grozdID, int prijavaID, string vloga)
     {
         var dodelitev = new GrozdiRecenzenti
         {
             GrozdID = grozdID,
+            PrijavaID = prijavaID, // Dodajte PrijavaID
             RecenzentID = recenzent.RecenzentID,
             Vloga = vloga
         };
@@ -211,10 +257,8 @@ public class DodeljevanjeRecenzentovService
         return nakljucniRecenzenti;
     }
 
-
     public async Task<List<GrozdiViewModel>> PridobiInformacijeZaIzpisAsync()
     {
-        // Pridobivanje informacij o grozdih in prijavah
         var grozdi = await _context.Grozdi
             .Include(g => g.Podpodrocje)
             .ToListAsync();
@@ -228,52 +272,41 @@ public class DodeljevanjeRecenzentovService
                 .Where(pg => pg.GrozdID == grozd.GrozdID)
                 .ToListAsync();
 
-            var prijaveInfo = prijavaGrozdi.Select(pg => new PrijavaInfo
-            {
-                PrijavaID = pg.PrijavaID,
-                StevilkaPrijave = pg.Prijava.StevilkaPrijave,
-                Naslov = pg.Prijava.Naslov,
-                Interdisc = (bool)pg.Prijava.Interdisc, // Dodano
-                SteviloRecenzentov = pg.Prijava.SteviloRecenzentov // Dodano
-            }).ToList();
+            var prijaveInfo = new List<PrijavaViewModel>();
 
-            var grozdViewModel = new GrozdiViewModel
+            foreach (var prijavaGrozd in prijavaGrozdi)
+            {
+                var prijava = prijavaGrozd.Prijava;
+                var recenzentiInfo = await _context.GrozdiRecenzenti
+                    .Where(gr => gr.GrozdID == grozd.GrozdID && gr.PrijavaID == prijava.PrijavaID)
+                    .Include(gr => gr.Recenzent)
+                    .Select(gr => new RecenzentInfo
+                    {
+                        RecenzentID = gr.RecenzentID,
+                        Ime = gr.Recenzent.Ime,
+                        Priimek = gr.Recenzent.Priimek,
+                        Vloga = gr.Vloga,
+                    }).ToListAsync();
+
+                prijaveInfo.Add(new PrijavaViewModel
+                {
+                    PrijavaID = prijava.PrijavaID,
+                    StevilkaPrijave = prijava.StevilkaPrijave,
+                    Naslov = prijava.Naslov,
+                    Interdisc = (bool)prijava.Interdisc,
+                    SteviloRecenzentov = prijava.SteviloRecenzentov,
+                    Podpodrocje = prijava.Podpodrocje?.Naziv, // Dodajte preverjanje null, če je potrebno
+                    DodatnoPodpodrocje = prijava.DodatnoPodpodrocje?.Naziv,
+                    Recenzenti = recenzentiInfo
+                });
+            }
+
+            grozdiViewModels.Add(new GrozdiViewModel
             {
                 GrozdID = grozd.GrozdID,
                 PodpodrocjeNaziv = grozd.Podpodrocje.Naziv,
-                Prijave = prijaveInfo,
-                Recenzenti = new List<RecenzentInfo>()
-            };
-
-            // Pridobivanje dodeljenih recenzentov za grozd
-            var dodeljeniRecenzenti = await _context.GrozdiRecenzenti
-                .Where(gr => gr.GrozdID == grozd.GrozdID)
-                .Select(gr => gr.RecenzentID)
-                .Distinct()
-                .ToListAsync();
-
-            foreach (var recenzentID in dodeljeniRecenzenti)
-            {
-                var recenzent = await _context.Recenzenti
-                    .FindAsync(recenzentID);
-
-                var recenzentPodrocja = await _context.RecenzentiPodrocja
-                    .Include(rp => rp.Podpodrocje)
-                    .Where(rp => rp.RecenzentID == recenzentID)
-                    .ToListAsync();
-
-                var recenzentInfo = new RecenzentInfo
-                {
-                    RecenzentID = recenzent.RecenzentID,
-                    Ime = recenzent.Ime,
-                    Priimek = recenzent.Priimek,
-                    Podpodrocja = recenzentPodrocja.Select(rp => rp.Podpodrocje.Naziv).ToList()
-                };
-
-                grozdViewModel.Recenzenti.Add(recenzentInfo);
-            }
-
-            grozdiViewModels.Add(grozdViewModel);
+                Prijave = prijaveInfo
+            });
         }
 
         return grozdiViewModels;

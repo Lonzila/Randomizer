@@ -1,34 +1,40 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@model List<Randomizer.Models.GrozdiViewModel>
-
-<div>
-    @foreach (var grozd in Model)
-    {
-        <div>
-            <h2>Grozd ID: @grozd.GrozdID, Podpodročje: @grozd.PodpodrocjeNaziv</h2>
-            <h3>Prijave:</h3>
-            <ul>
+﻿@model List<GrozdiViewModel>
+<div><a class="btn btn-success" href="@Url.Action("ExportToExcel", "Dodeljevanje")">Izvozi v Excel</a></div>
+@foreach (var grozd in Model)
+{
+    <div>
+        <h2>Grozd ID: @grozd.GrozdID, Podpodročje: @grozd.PodpodrocjeNaziv</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Številka prijave</th>
+                    <th>Naslov</th>
+                    <th>Interdisciplinarna</th>
+                    <th>Število recenzentov</th>
+                    <th>Podpodročje</th>
+                    <th>Dodatno podpodročje</th>
+                    <th>Recenzenti</th>
+                </tr>
+            </thead>
+            <tbody>
                 @foreach (var prijava in grozd.Prijave)
                 {
-                    <li>
-                        Prijava ID: @prijava.PrijavaID, Številka prijave: @prijava.StevilkaPrijave, Naslov: @prijava.Naslov,
-                        Interdisciplinarna: @(prijava.Interdisc ? "Da" : "Ne"), Število recenzentov: @prijava.SteviloRecenzentov
-                    </li>
+                    <tr>
+                        <td>@prijava.StevilkaPrijave</td>
+                        <td>@prijava.Naslov</td>
+                        <td>@(prijava.Interdisc ? "Da" : "Ne")</td>
+                        <td>@prijava.SteviloRecenzentov</td>
+                        <td>@prijava.Podpodrocje</td>
+                        <td>@prijava.DodatnoPodpodrocje</td>
+                        <td>
+                            @foreach (var recenzent in prijava.Recenzenti)
+                            {
+                                <div>@recenzent.Ime @recenzent.Priimek (@recenzent.Vloga)</div>
+                            }
+                        </td>
+                    </tr>
                 }
-            </ul>
-            <h3>Recenzenti:</h3>
-            <ul>
-                @foreach (var recenzent in grozd.Recenzenti)
-                {
-                    <li>
-                        Recenzent: @recenzent.Ime @recenzent.Priimek, Podpodročja: @string.Join(", ", recenzent.Podpodrocja)
-                    </li>
-                }
-            </ul>
-        </div>
-    }
-</div>
+            </tbody>
+        </table>
+    </div>
+}

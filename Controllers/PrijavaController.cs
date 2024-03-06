@@ -63,7 +63,7 @@ namespace Randomizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,Drzava,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc, PartnerskaAgencija1,PartnerskaAgencija2")] Prijave prijava)
+        public async Task<IActionResult> Create([Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc, PartnerskaAgencija1,PartnerskaAgencija2")] Prijave prijava)
         {
             if (ModelState.IsValid)
             {
@@ -103,7 +103,7 @@ namespace Randomizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,Drzava,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc,PartnerskaAgencija1,PartnerskaAgencija2")] Prijave prijava)
+        public async Task<IActionResult> Edit(int id, [Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc,PartnerskaAgencija1,PartnerskaAgencija2")] Prijave prijava)
         {
             if (id != prijava.PrijavaID)
             {
