@@ -35,7 +35,7 @@ namespace Randomizer.Controllers
         public async Task<IActionResult> PrikazPosodobljenihRecenzentov()
         {
             var grozdiViewModels = await _dodeljevanjeRecenzentovService.PridobiInformacijeZaIzpisAsync();
-            return View("PrikazGrozdov", grozdiViewModels); // Predpostavljamo, da imate že View "PrikazGrozdov"
+            return View("~/Views/Dodeljevanje/PrikazGrozdov.cshtml", grozdiViewModels); // Uporabite natanèno pot do pogleda
         }
         public async Task<IActionResult> ObdelajZavrnitve()
         {

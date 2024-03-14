@@ -37,7 +37,7 @@ namespace Randomizer.Controllers
             var recenzentiZavrnitve = await _context.RecenzentiZavrnitve
                 .Include(r => r.Prijava)
                 .Include(r => r.Recenzent)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (recenzentiZavrnitve == null)
             {
                 return NotFound();
@@ -97,7 +97,7 @@ namespace Randomizer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,RecenzentID,PrijavaID,Razlog")] RecenzentiZavrnitve recenzentiZavrnitve)
         {
-            if (id != recenzentiZavrnitve.Id)
+            if (id != recenzentiZavrnitve.ID)
             {
                 return NotFound();
             }
@@ -111,7 +111,7 @@ namespace Randomizer.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RecenzentiZavrnitveExists(recenzentiZavrnitve.Id))
+                    if (!RecenzentiZavrnitveExists(recenzentiZavrnitve.ID))
                     {
                         return NotFound();
                     }
@@ -138,7 +138,7 @@ namespace Randomizer.Controllers
             var recenzentiZavrnitve = await _context.RecenzentiZavrnitve
                 .Include(r => r.Prijava)
                 .Include(r => r.Recenzent)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (recenzentiZavrnitve == null)
             {
                 return NotFound();
@@ -164,7 +164,7 @@ namespace Randomizer.Controllers
 
         private bool RecenzentiZavrnitveExists(int id)
         {
-            return _context.RecenzentiZavrnitve.Any(e => e.Id == id);
+            return _context.RecenzentiZavrnitve.Any(e => e.ID == id);
         }
     }
 }
