@@ -54,7 +54,7 @@ namespace Randomizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PodrocjeID,Naziv,Koda")] Podrocje podrocje)
+        public async Task<IActionResult> Create([Bind("PodrocjeID,Naziv,Koda,AngNaziv")] Podrocje podrocje)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace Randomizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PodrocjeID,Naziv,Koda")] Podrocje podrocje)
+        public async Task<IActionResult> Edit(int id, [Bind("PodrocjeID,Naziv,Koda,AngNaziv")] Podrocje podrocje)
         {
             if (id != podrocje.PodrocjeID)
             {

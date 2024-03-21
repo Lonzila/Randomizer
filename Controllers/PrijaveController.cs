@@ -10,23 +10,23 @@ using Randomizer.Models;
 
 namespace Randomizer.Controllers
 {
-    public class PrijavaController : Controller
+    public class PrijaveController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public PrijavaController(ApplicationDbContext context)
+        public PrijaveController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Prijava
+        // GET: Prijave
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Prijave.Include(p => p.DodatnoPodpodrocje).Include(p => p.DodatnoPodrocje).Include(p => p.Podpodrocje).Include(p => p.Podrocje);
+            var applicationDbContext = _context.Prijave.Include(p => p.DodatnoPodpodrocje).Include(p => p.Podpodrocje);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Prijava/Details/5
+        // GET: Prijave/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,21 +34,21 @@ namespace Randomizer.Controllers
                 return NotFound();
             }
 
-            var prijava = await _context.Prijave
+            var prijave = await _context.Prijave
                 .Include(p => p.DodatnoPodpodrocje)
-                .Include(p => p.DodatnoPodrocje)
+          
                 .Include(p => p.Podpodrocje)
-                .Include(p => p.Podrocje)
+
                 .FirstOrDefaultAsync(m => m.PrijavaID == id);
-            if (prijava == null)
+            if (prijave == null)
             {
                 return NotFound();
             }
 
-            return View(prijava);
+            return View(prijave);
         }
 
-        // GET: Prijava/Create
+        // GET: Prijave/Create
         public IActionResult Create()
         {
             ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID");
@@ -58,27 +58,27 @@ namespace Randomizer.Controllers
             return View();
         }
 
-        // POST: Prijava/Create
+        // POST: Prijave/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc, PartnerskaAgencija1,PartnerskaAgencija2")] Prijave prijava)
+        public async Task<IActionResult> Create([Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc,PartnerskaAgencija1,PartnerskaAgencija2,AngNaslov,Vodja,SifraVodje,NazivRO,AngNazivRO,SifraRO")] Prijave prijave)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(prijava);
+                _context.Add(prijave);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijava.DodatnoPodpodrocjeID);
-            ViewData["DodatnoPodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", prijava.DodatnoPodrocjeID);
-            ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijava.PodpodrocjeID);
-            ViewData["PodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", prijava.PodrocjeID);
-            return View(prijava);
+            ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijave.DodatnoPodpodrocjeID);
+           
+            ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijave.PodpodrocjeID);
+           
+            return View(prijave);
         }
 
-        // GET: Prijava/Edit/5
+        // GET: Prijave/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -86,26 +86,26 @@ namespace Randomizer.Controllers
                 return NotFound();
             }
 
-            var prijava = await _context.Prijave.FindAsync(id);
-            if (prijava == null)
+            var prijave = await _context.Prijave.FindAsync(id);
+            if (prijave == null)
             {
                 return NotFound();
             }
-            ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijava.DodatnoPodpodrocjeID);
-            ViewData["DodatnoPodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", prijava.DodatnoPodrocjeID);
-            ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijava.PodpodrocjeID);
-            ViewData["PodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", prijava.PodrocjeID);
-            return View(prijava);
+            ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijave.DodatnoPodpodrocjeID);
+
+            ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijave.PodpodrocjeID);
+
+            return View(prijave);
         }
 
-        // POST: Prijava/Edit/5
+        // POST: Prijave/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc,PartnerskaAgencija1,PartnerskaAgencija2")] Prijave prijava)
+        public async Task<IActionResult> Edit(int id, [Bind("PrijavaID,StevilkaPrijave,VrstaProjekta,PodrocjeID,PodpodrocjeID,DodatnoPodrocjeID,DodatnoPodpodrocjeID,Naslov,SteviloRecenzentov,Interdisc,PartnerskaAgencija1,PartnerskaAgencija2,AngNaslov,Vodja,SifraVodje,NazivRO,AngNazivRO,SifraRO")] Prijave prijave)
         {
-            if (id != prijava.PrijavaID)
+            if (id != prijave.PrijavaID)
             {
                 return NotFound();
             }
@@ -114,12 +114,12 @@ namespace Randomizer.Controllers
             {
                 try
                 {
-                    _context.Update(prijava);
+                    _context.Update(prijave);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PrijavaExists(prijava.PrijavaID))
+                    if (!PrijaveExists(prijave.PrijavaID))
                     {
                         return NotFound();
                     }
@@ -130,14 +130,14 @@ namespace Randomizer.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijava.DodatnoPodpodrocjeID);
-            ViewData["DodatnoPodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", prijava.DodatnoPodrocjeID);
-            ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijava.PodpodrocjeID);
-            ViewData["PodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", prijava.PodrocjeID);
-            return View(prijava);
+            ViewData["DodatnoPodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijave.DodatnoPodpodrocjeID);
+         
+            ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", prijave.PodpodrocjeID);
+
+            return View(prijave);
         }
 
-        // GET: Prijava/Delete/5
+        // GET: Prijave/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -145,36 +145,36 @@ namespace Randomizer.Controllers
                 return NotFound();
             }
 
-            var prijava = await _context.Prijave
+            var prijave = await _context.Prijave
                 .Include(p => p.DodatnoPodpodrocje)
-                .Include(p => p.DodatnoPodrocje)
+                
                 .Include(p => p.Podpodrocje)
-                .Include(p => p.Podrocje)
+       
                 .FirstOrDefaultAsync(m => m.PrijavaID == id);
-            if (prijava == null)
+            if (prijave == null)
             {
                 return NotFound();
             }
 
-            return View(prijava);
+            return View(prijave);
         }
 
-        // POST: Prijava/Delete/5
+        // POST: Prijave/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var prijava = await _context.Prijave.FindAsync(id);
-            if (prijava != null)
+            var prijave = await _context.Prijave.FindAsync(id);
+            if (prijave != null)
             {
-                _context.Prijave.Remove(prijava);
+                _context.Prijave.Remove(prijave);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PrijavaExists(int id)
+        private bool PrijaveExists(int id)
         {
             return _context.Prijave.Any(e => e.PrijavaID == id);
         }

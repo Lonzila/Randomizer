@@ -6,7 +6,7 @@
 
 <h1>Create</h1>
 
-<h4>Prijava</h4>
+<h4>Prijave</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -22,18 +22,12 @@
                 <input asp-for="VrstaProjekta" class="form-control" />
                 <span asp-validation-for="VrstaProjekta" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PodrocjeID" class="control-label"></label>
-                <select asp-for="PodrocjeID" class ="form-control" asp-items="ViewBag.PodrocjeID"></select>
-            </div>
+          
             <div class="form-group">
                 <label asp-for="PodpodrocjeID" class="control-label"></label>
                 <select asp-for="PodpodrocjeID" class ="form-control" asp-items="ViewBag.PodpodrocjeID"></select>
             </div>
-            <div class="form-group">
-                <label asp-for="DodatnoPodrocjeID" class="control-label"></label>
-                <select asp-for="DodatnoPodrocjeID" class ="form-control" asp-items="ViewBag.DodatnoPodrocjeID"></select>
-            </div>
+         
             <div class="form-group">
                 <label asp-for="DodatnoPodpodrocjeID" class="control-label"></label>
                 <select asp-for="DodatnoPodpodrocjeID" class ="form-control" asp-items="ViewBag.DodatnoPodpodrocjeID"></select>
@@ -62,6 +56,36 @@
                 <label asp-for="PartnerskaAgencija2" class="control-label"></label>
                 <input asp-for="PartnerskaAgencija2" class="form-control" />
                 <span asp-validation-for="PartnerskaAgencija2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AngNaslov" class="control-label"></label>
+                <input asp-for="AngNaslov" class="form-control" />
+                <span asp-validation-for="AngNaslov" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Vodja" class="control-label"></label>
+                <input asp-for="Vodja" class="form-control" />
+                <span asp-validation-for="Vodja" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SifraVodje" class="control-label"></label>
+                <input asp-for="SifraVodje" class="form-control" />
+                <span asp-validation-for="SifraVodje" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NazivRO" class="control-label"></label>
+                <input asp-for="NazivRO" class="form-control" />
+                <span asp-validation-for="NazivRO" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AngNazivRO" class="control-label"></label>
+                <input asp-for="AngNazivRO" class="form-control" />
+                <span asp-validation-for="AngNazivRO" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SifraRO" class="control-label"></label>
+                <input asp-for="SifraRO" class="form-control" />
+                <span asp-validation-for="SifraRO" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

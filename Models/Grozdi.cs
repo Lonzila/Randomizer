@@ -8,6 +8,7 @@ namespace Randomizer.Models
         [Key]
         public int GrozdID { get; set; }
         public int PodpodrocjeID { get; set; }
+        public string Koda { get; set; }
 
         // Navigacijske lastnosti
         public Podpodrocje Podpodrocje { get; set; }

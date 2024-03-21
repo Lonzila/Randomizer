@@ -7,7 +7,7 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Prijava</h4>
+    <h4>Prijave</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -34,10 +34,10 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.SteviloRecenzentov)
         </dd>
-        <dt class="col-sm-2">
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Interdisc)
         </dt>
-        <dd class="col-sm-10">
+        <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Interdisc)
         </dd>
         <dt class = "col-sm-2">
@@ -53,23 +53,49 @@
             @Html.DisplayFor(model => model.PartnerskaAgencija2)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Podrocje)
+            @Html.DisplayNameFor(model => model.AngNaslov)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Podrocje.PodrocjeID)
+            @Html.DisplayFor(model => model.AngNaslov)
         </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Vodja)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Vodja)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SifraVodje)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SifraVodje)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NazivRO)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NazivRO)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AngNazivRO)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AngNazivRO)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SifraRO)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SifraRO)
+        </dd>
+       
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Podpodrocje)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Podpodrocje.PodpodrocjeID)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DodatnoPodrocje)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DodatnoPodrocje.PodrocjeID)
-        </dd>
+      
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DodatnoPodpodrocje)
         </dt>

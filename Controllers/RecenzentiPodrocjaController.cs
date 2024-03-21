@@ -22,7 +22,7 @@ namespace Randomizer.Controllers
         // GET: RecenzentiPodrocja
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.RecenzentiPodrocja.Include(r => r.Podpodrocje).Include(r => r.Podrocje).Include(r => r.Recenzent);
+            var applicationDbContext = _context.RecenzentiPodrocja.Include(r => r.Podpodrocje).Include(r => r.Recenzent);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,7 +36,7 @@ namespace Randomizer.Controllers
 
             var recenzentiPodrocja = await _context.RecenzentiPodrocja
                 .Include(r => r.Podpodrocje)
-                .Include(r => r.Podrocje)
+               
                 .Include(r => r.Recenzent)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (recenzentiPodrocja == null)
@@ -70,7 +70,7 @@ namespace Randomizer.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", recenzentiPodrocja.PodpodrocjeID);
-            ViewData["PodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", recenzentiPodrocja.PodrocjeID);
+
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID", recenzentiPodrocja.RecenzentID);
             return View(recenzentiPodrocja);
         }
@@ -89,7 +89,7 @@ namespace Randomizer.Controllers
                 return NotFound();
             }
             ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", recenzentiPodrocja.PodpodrocjeID);
-            ViewData["PodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", recenzentiPodrocja.PodrocjeID);
+         
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID", recenzentiPodrocja.RecenzentID);
             return View(recenzentiPodrocja);
         }
@@ -127,7 +127,7 @@ namespace Randomizer.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["PodpodrocjeID"] = new SelectList(_context.Podpodrocje, "PodpodrocjeID", "PodpodrocjeID", recenzentiPodrocja.PodpodrocjeID);
-            ViewData["PodrocjeID"] = new SelectList(_context.Podrocje, "PodrocjeID", "PodrocjeID", recenzentiPodrocja.PodrocjeID);
+        
             ViewData["RecenzentID"] = new SelectList(_context.Recenzenti, "RecenzentID", "RecenzentID", recenzentiPodrocja.RecenzentID);
             return View(recenzentiPodrocja);
         }
@@ -142,7 +142,7 @@ namespace Randomizer.Controllers
 
             var recenzentiPodrocja = await _context.RecenzentiPodrocja
                 .Include(r => r.Podpodrocje)
-                .Include(r => r.Podrocje)
+               
                 .Include(r => r.Recenzent)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (recenzentiPodrocja == null)

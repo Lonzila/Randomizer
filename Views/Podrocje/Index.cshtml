@@ -18,6 +18,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Koda)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AngNaziv)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -29,6 +32,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Koda)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AngNaziv)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PodrocjeID">Edit</a> |
