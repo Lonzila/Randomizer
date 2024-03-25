@@ -116,7 +116,7 @@ public class DodeljevanjeRecenzentovService
 
         foreach (var grozd in urejeniGrozdi)
         {
-            Console.WriteLine(grozd.Podpodrocje.Naziv);
+            //Console.WriteLine(grozd.Podpodrocje.Naziv);
             var recenzenti = await IzberiRecenzenteZaGrozdAsync(grozd);
             //Console.WriteLine($"Izbrani recenzenti za grozd {grozd.GrozdID}, {grozd.Podpodrocje.Naziv}: {string.Join(", ", recenzenti.Select(r => r.Priimek))}");
 
@@ -178,25 +178,30 @@ public class DodeljevanjeRecenzentovService
                         var vlogaPrvega = "Recenzent";
                         var vlogaDrugega = "Recenzent";
 
-                        // Preveri, če kateri od recenzentov ni voljan biti poročevalec
-                        if (recenzenti[0].Porocevalec == false && recenzenti[1].Porocevalec != false)
+                        if (recenzenti.Count >= 2)
                         {
-                            vlogaPrvega = "Recenzent";
-                            vlogaDrugega = "Poročevalec";
-                        }
-                        else if (recenzenti[1].Porocevalec == false && recenzenti[0].Porocevalec != false)
-                        {
-                            vlogaPrvega = "Poročevalec";
-                            vlogaDrugega = "Recenzent";
-                        }
-                        else
-                        {
-                            vlogaPrvega = "Poročevalec"; // Lahko uporabite naključno izbiro ali katero koli drugo logiko
-                        }
+                            // Preveri, če kateri od recenzentov ni voljan biti poročevalec
+                            if (recenzenti[0].Porocevalec == false && recenzenti[1].Porocevalec != false)
+                            {
+                                vlogaPrvega = "Recenzent";
+                                vlogaDrugega = "Poročevalec";
+                            }
+                            else if (recenzenti[1].Porocevalec == false && recenzenti[0].Porocevalec != false)
+                            {
+                                vlogaPrvega = "Poročevalec";
+                                vlogaDrugega = "Recenzent";
+                            }
+                            else
+                            {
+                                // Če oba recenzenta ali noben ne izrazi preference, uporabi prednastavljeno logiko za dodelitev
+                                // Tukaj lahko uporabite dodatno logiko za odločitev
+                                vlogaPrvega = "Poročevalec"; // Lahko uporabite naključno izbiro ali katero koli drugo logiko
+                            }
 
-                        // Dodeli vloge recenzentoma
-                        DodeliRecenzentaPrijava(recenzenti[0], grozd.GrozdID, prijava.PrijavaID, vlogaPrvega, steviloPrijavVGrozd);
-                        DodeliRecenzentaPrijava(recenzenti[1], grozd.GrozdID, prijava.PrijavaID, vlogaDrugega, steviloPrijavVGrozd);
+                            // Dodeli vloge recenzentoma
+                            DodeliRecenzentaPrijava(recenzenti[0], grozd.GrozdID, prijava.PrijavaID, vlogaPrvega, steviloPrijavVGrozd);
+                            DodeliRecenzentaPrijava(recenzenti[1], grozd.GrozdID, prijava.PrijavaID, vlogaDrugega, steviloPrijavVGrozd);
+                        }
                     }     
                     
                 }
@@ -419,7 +424,7 @@ public class DodeljevanjeRecenzentovService
                     .Select(gr => new RecenzentInfo
                     {
                         RecenzentID = gr.RecenzentID,
-                        Ime = gr.Recenzent.Ime,
+                        Sifra = gr.Recenzent.Sifra,
                         Priimek = gr.Recenzent.Priimek,
                         Vloga = gr.Vloga,
                     }).ToListAsync();

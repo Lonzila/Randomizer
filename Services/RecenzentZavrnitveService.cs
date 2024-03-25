@@ -82,6 +82,13 @@
 
         private async Task<Recenzent> NajdiNadomestnegaRecenzentaAsync(int grozdId, int prijavaId, int izkljuceniRecenzentId)
         {
+            var vlogaZavrnjenegaRecenzenta = await _context.GrozdiRecenzenti
+                .Where(gr => gr.RecenzentID == izkljuceniRecenzentId && gr.PrijavaID == prijavaId)
+                .Select(gr => gr.Vloga)
+                .FirstOrDefaultAsync();
+
+            bool jePorocevalec = vlogaZavrnjenegaRecenzenta == "Poročevalec";
+
             // Pridobitev podatkov o prijavi in grozdu
             var prijava = await _context.Prijave.FindAsync(prijavaId);
             var grozd = await _context.Grozdi.Include(g => g.Podpodrocje).FirstOrDefaultAsync(g => g.GrozdID == grozdId);
@@ -112,7 +119,13 @@
             var partnerskeAgencijeDrzave = partnerskeAgencijeKode.Select(koda => PartnerskaAgencijaDrzavaMap.PretvoriVDrzavo(koda)).ToList();
             potencialniRecenzenti = potencialniRecenzenti.Where(r => !partnerskeAgencijeDrzave.Contains(r.Drzava)).ToList();
 
-           
+            if (jePorocevalec)
+            {
+                potencialniRecenzenti = potencialniRecenzenti
+                    .Where(r => r.Porocevalec != false)
+                    .ToList();
+            }
+
             var recenzentiZDovoljProstora = new List<Recenzent>();
             foreach (var recenzent in potencialniRecenzenti)
             {
@@ -121,7 +134,7 @@
                     .SelectMany(gr => _context.PrijavaGrozdi.Where(pg => pg.GrozdID == gr.GrozdID))
                     .CountAsync();
 
-                bool imaDovoljProstora = recenzent.SteviloProjektov == null || trenutnoSteviloDodeljenihPrijav < recenzent.SteviloProjektov;
+                bool imaDovoljProstora = trenutnoSteviloDodeljenihPrijav < recenzent.SteviloProjektov;
 
                 if (imaDovoljProstora)
                 {

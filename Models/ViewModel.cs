@@ -22,7 +22,7 @@
     public class RecenzentInfo
     {
         public int RecenzentID { get; set; }
-        public string Ime { get; set; }
+        public int Sifra { get; set; }
         public string Priimek { get; set; }
         public string Vloga { get; set; } 
     }
