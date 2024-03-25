@@ -9,9 +9,10 @@ namespace Randomizer.Models
         public int Sifra { get; set; }
         public string Ime { get; set; }
         public string Priimek { get; set; }
-        public string EPosta { get; set; }
+        public string? EPosta { get; set; }
         public int? SteviloProjektov { get; set; }
         public string Drzava { get; set; }
+        public bool? Porocevalec { get; set; }
 
         // Navigacijske lastnosti
         public ICollection<GrozdiRecenzenti> GrozdiRecenzenti { get; set; }

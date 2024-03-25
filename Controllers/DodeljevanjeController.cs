@@ -18,10 +18,12 @@ public class DodeljevanjeController : Controller
     public async Task<IActionResult> ExportToExcel()
     {
         // Najprej pridobimo vse prijave z njihovimi recenzenti
+        
         var prijaveRecenzenti = await _context.Prijave
             .SelectMany(prijava => _context.GrozdiRecenzenti
                 .Where(gr => gr.PrijavaID == prijava.PrijavaID)
-                .Select(gr => new { prijava.PrijavaID, gr.RecenzentID }))
+                .Join(_context.Recenzenti, gr => gr.RecenzentID, recenzent => recenzent.RecenzentID,
+                    (gr, recenzent) => new { prijava.PrijavaID, recenzent.Sifra }))
             .ToListAsync();
 
         // Nato ustvarimo slovar, ki prijavi priredi seznam šifer recenzentov
@@ -29,8 +31,9 @@ public class DodeljevanjeController : Controller
             .GroupBy(pr => pr.PrijavaID)
             .ToDictionary(
                 g => g.Key,
-                g => g.Select(pr => pr.RecenzentID.ToString()).Distinct().ToList()
+                g => g.Select(pr => pr.Sifra).Distinct().ToList()
             );
+
 
 
         // Nato pridobimo ostale podatke za prijave in povežemo informacije o recenzentih
@@ -60,7 +63,7 @@ public class DodeljevanjeController : Controller
                                  DodatnoPodpodrocjeNaziv = dodatnoPodpodrocje != null ? dodatnoPodpodrocje.Naziv : string.Empty,
                                  RecenzentiSifre = recenzentiPoPrijavah.ContainsKey(prijave.PrijavaID)
                                                 ? recenzentiPoPrijavah[prijave.PrijavaID]
-                                                : new List<string>(),
+                                                : new List<int>(),
                              }).ToListAsync();
 
         using (var workbook = new XLWorkbook())
