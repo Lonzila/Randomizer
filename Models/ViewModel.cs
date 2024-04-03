@@ -16,6 +16,8 @@
         public int SteviloRecenzentov { get; set; }
         public string Podpodrocje { get; set; } 
         public string DodatnoPodpodrocje { get; set; }
+        public string PartnerskaAgencija1 { get; set; }
+        public string PartnerskaAgencija2 { get; set; }
         public List<RecenzentInfo> Recenzenti { get; set; }
     }
 
@@ -25,6 +27,7 @@
         public int Sifra { get; set; }
         public string Priimek { get; set; }
         public string Vloga { get; set; } 
+        public string Drzava { get; set; }
     }
 
 }

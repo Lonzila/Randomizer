@@ -37,7 +37,7 @@
     public class RecenzentZavrnitveService
     {
         private readonly ApplicationDbContext _context;
-
+        private Dictionary<int, (int trenutnoSteviloPrijav, int? maksimalnoSteviloPrijav, string vloga)> recenzentiStanje;
         public RecenzentZavrnitveService(ApplicationDbContext context)
         {
             _context = context;
@@ -45,6 +45,33 @@
 
         public async Task ObdelajZavrnitveInDodeliNoveRecenzenteAsync()
         {
+
+            var recenzentiMaxPrijav = await _context.Recenzenti
+                .ToDictionaryAsync(r => r.RecenzentID, r => r.SteviloProjektov);
+
+            // Pridobivanje trenutnega števila dodeljenih prijav za vse recenzente
+            var trenutnoSteviloPrijav = await _context.GrozdiRecenzenti
+                .GroupBy(gr => gr.RecenzentID)
+                .Select(g => new { RecenzentID = g.Key, Stevilo = g.Count() })
+                .ToDictionaryAsync(g => g.RecenzentID, g => g.Stevilo);
+
+            // Pridobivanje trenutnih vlog recenzentov
+            var trenutneVlogeRecenzentov = await _context.GrozdiRecenzenti
+                .Where(gr => recenzentiMaxPrijav.Keys.Contains(gr.RecenzentID))
+                .GroupBy(gr => gr.RecenzentID)
+                .Select(g => new { RecenzentID = g.Key, Vloga = g.FirstOrDefault().Vloga })
+                .ToDictionaryAsync(g => g.RecenzentID, g => g.Vloga ?? "");
+
+            // Inicializacija slovarja z dodajanjem informacij o trenutnih vlogah
+            recenzentiStanje = recenzentiMaxPrijav.Keys.ToDictionary(
+                recenzentID => recenzentID,
+                recenzentID => (
+                    trenutnoSteviloPrijav.ContainsKey(recenzentID) ? trenutnoSteviloPrijav[recenzentID] : 0,
+                    recenzentiMaxPrijav[recenzentID],
+                    trenutneVlogeRecenzentov.ContainsKey(recenzentID) ? trenutneVlogeRecenzentov[recenzentID] : ""
+                )
+            );
+
             var zavrnitve = await _context.RecenzentiZavrnitve.ToListAsync();
 
             foreach (var zavrnitev in zavrnitve)
@@ -63,6 +90,23 @@
                         // Posodobite RecenzentID z ID-jem nadomestnega recenzenta
                         originalnaDodelitev.RecenzentID = nadomestniRecenzent.RecenzentID;
                         _context.GrozdiRecenzenti.Update(originalnaDodelitev);
+
+                        // Posodobitev slovarja za originalnega recenzenta, ki je zavrnil
+                        if (recenzentiStanje.ContainsKey(zavrnitev.RecenzentID))
+                        {
+                            var trenutno = recenzentiStanje[zavrnitev.RecenzentID];
+                            // Zmanjšaj trenutno število dodeljenih prijav za recenzenta, ki je zavrnil, brez spreminjanja njegove vloge
+                            recenzentiStanje[zavrnitev.RecenzentID] = (trenutno.trenutnoSteviloPrijav - 1, trenutno.maksimalnoSteviloPrijav, trenutno.vloga);
+                        }
+
+                        // Posodobitev slovarja za nadomestnega recenzenta
+                        if (recenzentiStanje.ContainsKey(nadomestniRecenzent.RecenzentID))
+                        {
+                            var trenutno = recenzentiStanje[nadomestniRecenzent.RecenzentID];
+                            var vlogaZavrnjenegaRecenzenta = recenzentiStanje[zavrnitev.RecenzentID].vloga;
+                            // Povečaj trenutno število dodeljenih prijav za nadomestnega recenzenta in nastavi vlogo
+                            recenzentiStanje[nadomestniRecenzent.RecenzentID] = (trenutno.trenutnoSteviloPrijav + 1, trenutno.maksimalnoSteviloPrijav, vlogaZavrnjenegaRecenzenta);
+                        }
                     }
                 }
             }
@@ -80,75 +124,83 @@
             return grozdId == 0 ? (int?)null : grozdId;
         }
 
-        private async Task<Recenzent> NajdiNadomestnegaRecenzentaAsync(int grozdId, int prijavaId, int izkljuceniRecenzentId)
-        {
-            var vlogaZavrnjenegaRecenzenta = await _context.GrozdiRecenzenti
+
+
+
+        /*var vlogaZavrnjenegaRecenzenta = await _context.GrozdiRecenzenti
                 .Where(gr => gr.RecenzentID == izkljuceniRecenzentId && gr.PrijavaID == prijavaId)
                 .Select(gr => gr.Vloga)
                 .FirstOrDefaultAsync();
-
-            bool jePorocevalec = vlogaZavrnjenegaRecenzenta == "Poročevalec";
-
+            */
+        /*if (jePorocevalec)
+        {
+            potencialniRecenzenti = potencialniRecenzenti
+                .Where(r => r.Porocevalec != false)
+                .ToList();
+        }*/
+        private async Task<Recenzent> NajdiNadomestnegaRecenzentaAsync(int grozdId, int prijavaId, int izkljuceniRecenzentId)
+        {
             // Pridobitev podatkov o prijavi in grozdu
             var prijava = await _context.Prijave.FindAsync(prijavaId);
             var grozd = await _context.Grozdi.Include(g => g.Podpodrocje).FirstOrDefaultAsync(g => g.GrozdID == grozdId);
 
             // Izločitev recenzentov, ki so že zavrnili ali so izključeni zaradi konflikta interesov
             var izkljuceniRecenzenti = new List<int> { izkljuceniRecenzentId };
-            var zavrnitve = await _context.RecenzentiZavrnitve.Where(z => z.PrijavaID == prijavaId).Select(z => z.RecenzentID).ToListAsync();
+            var zavrnitve = await _context.RecenzentiZavrnitve
+                                          .Where(z => z.PrijavaID == prijavaId)
+                                          .Select(z => z.RecenzentID)
+                                          .ToListAsync();
             izkljuceniRecenzenti.AddRange(zavrnitve);
 
             var izloceniRecenzentiCOI = await _context.IzloceniCOI
-                .Where(coi => coi.PrijavaID == prijavaId)
-                .Select(coi => coi.RecenzentID)
-                .ToListAsync();
+                                                      .Where(coi => coi.PrijavaID == prijavaId)
+                                                      .Select(coi => coi.RecenzentID)
+                                                      .ToListAsync();
             izkljuceniRecenzenti.AddRange(izloceniRecenzentiCOI);
 
-            // Filtriranje potencialnih recenzentov
+            // Določitev vloge zavrnjenega recenzenta
+            var vlogaZavrnjenegaRecenzenta = recenzentiStanje.ContainsKey(izkljuceniRecenzentId) ? recenzentiStanje[izkljuceniRecenzentId].vloga : null;
+
+            // Filtriranje potencialnih recenzentov glede na podpodročje in izključitve
             var recenzentiPodpodrocja = await _context.RecenzentiPodrocja
                 .Where(rp => rp.PodpodrocjeID == grozd.PodpodrocjeID && !izkljuceniRecenzenti.Contains(rp.RecenzentID))
                 .Select(rp => rp.RecenzentID)
                 .ToListAsync();
 
             var potencialniRecenzenti = await _context.Recenzenti
-                .Where(r => recenzentiPodpodrocja.Contains(r.RecenzentID))
+                .Where(r =>
+                    recenzentiPodpodrocja.Contains(r.RecenzentID) &&
+                    !izkljuceniRecenzenti.Contains(r.RecenzentID) &&
+                    r.OdpovedPredDolocitvijo != true
+                )
                 .ToListAsync();
 
             // Upoštevanje partnerskih agencij in držav
-            var partnerskeAgencijeKode = new List<string> { prijava.PartnerskaAgencija1, prijava.PartnerskaAgencija2 }.Where(k => !string.IsNullOrEmpty(k)).Distinct();
-            var partnerskeAgencijeDrzave = partnerskeAgencijeKode.Select(koda => PartnerskaAgencijaDrzavaMap.PretvoriVDrzavo(koda)).ToList();
-            potencialniRecenzenti = potencialniRecenzenti.Where(r => !partnerskeAgencijeDrzave.Contains(r.Drzava)).ToList();
+            var partnerskeAgencijeKode = new List<string> { prijava.PartnerskaAgencija1, prijava.PartnerskaAgencija2 }
+                                            .Where(k => !string.IsNullOrEmpty(k))
+                                            .Distinct();
+            var partnerskeAgencijeDrzave = partnerskeAgencijeKode
+                                            .Select(koda => PartnerskaAgencijaDrzavaMap.PretvoriVDrzavo(koda))
+                                            .ToList();
+            potencialniRecenzenti = potencialniRecenzenti
+                                        .Where(r => !partnerskeAgencijeDrzave.Contains(r.Drzava))
+                                        .ToList();
 
-            if (jePorocevalec)
-            {
-                potencialniRecenzenti = potencialniRecenzenti
-                    .Where(r => r.Porocevalec != false)
-                    .ToList();
-            }
+            // Filtriranje recenzentov glede na prostor in vlogo
+            var recenzentiZDovoljProstoraInVlogo = potencialniRecenzenti
+                .Where(r => recenzentiStanje.ContainsKey(r.RecenzentID) &&
+                            recenzentiStanje[r.RecenzentID].trenutnoSteviloPrijav < recenzentiStanje[r.RecenzentID].maksimalnoSteviloPrijav &&
+                            (string.IsNullOrEmpty(recenzentiStanje[r.RecenzentID].vloga) || recenzentiStanje[r.RecenzentID].vloga == vlogaZavrnjenegaRecenzenta))
+                .ToList();
 
-            var recenzentiZDovoljProstora = new List<Recenzent>();
-            foreach (var recenzent in potencialniRecenzenti)
-            {
-                var trenutnoSteviloDodeljenihPrijav = await _context.GrozdiRecenzenti
-                    .Where(gr => gr.RecenzentID == recenzent.RecenzentID)
-                    .SelectMany(gr => _context.PrijavaGrozdi.Where(pg => pg.GrozdID == gr.GrozdID))
-                    .CountAsync();
-
-                bool imaDovoljProstora = trenutnoSteviloDodeljenihPrijav < recenzent.SteviloProjektov;
-
-                if (imaDovoljProstora)
-                {
-                    recenzentiZDovoljProstora.Add(recenzent);
-                }
-
-            }
             // Naključna izbira nadomestnega recenzenta
             var random = new Random();
-            var nakljucniRecenzentIndex = random.Next(recenzentiZDovoljProstora.Count);
-            var nakljucniRecenzent = recenzentiZDovoljProstora.ElementAtOrDefault(nakljucniRecenzentIndex);
+            var nakljucniRecenzentIndex = random.Next(recenzentiZDovoljProstoraInVlogo.Count);
+            var nakljucniRecenzent = recenzentiZDovoljProstoraInVlogo.ElementAtOrDefault(nakljucniRecenzentIndex);
 
             return nakljucniRecenzent;
         }
-        
+
+
     }
 }

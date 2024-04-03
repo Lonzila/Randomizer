@@ -13,6 +13,7 @@ namespace Randomizer.Models
         public int? SteviloProjektov { get; set; }
         public string Drzava { get; set; }
         public bool? Porocevalec { get; set; }
+        public bool? OdpovedPredDolocitvijo { get; set; }
 
         // Navigacijske lastnosti
         public ICollection<GrozdiRecenzenti> GrozdiRecenzenti { get; set; }
