@@ -150,23 +150,47 @@ public class DodeljevanjeController : Controller
             // Dodajanje podatkov
             foreach (var item in results)
             {
-                // Pridobitev šifer recenzentov kot seznam, kjer je poročevalec vedno prvi
                 List<string> recenzentiSifreUrejene = new List<string>();
 
-                // Dodajte šifro poročevalca na prvo mesto, če obstaja
+                // Določitev, kdo je poročevalec (že storjeno prej)
                 if (item.PorocevalecSifra != 0 && !recenzentiSifreUrejene.Contains(item.PorocevalecSifra.ToString()))
                 {
                     recenzentiSifreUrejene.Add(item.PorocevalecSifra.ToString());
                 }
 
-                // Dodajte preostale recenzente, preskočite poročevalca, če je že dodan
+                // Glede na to, da sta poročevalec in Ocenjevalec 2 vedno skupaj, določite indeks za Ocenjevalca 2
+                int porocevalecIndex = item.RecenzentiSifre.FindIndex(s => s.ToString() == item.PorocevalecSifra.ToString());
+                if (porocevalecIndex != -1) // Poročevalec najden
+                {
+                    int ocenjevalec2Index = porocevalecIndex % 2 == 0 ? porocevalecIndex + 1 : porocevalecIndex - 1; // Določitev nasprotnega indeksa
+                    if (ocenjevalec2Index >= 0 && ocenjevalec2Index < item.RecenzentiSifre.Count) // Preverjanje, če je indeks veljaven
+                    {
+                        string ocenjevalec2Sifra = item.RecenzentiSifre[ocenjevalec2Index].ToString();
+                        if (!recenzentiSifreUrejene.Contains(ocenjevalec2Sifra))
+                        {
+                            recenzentiSifreUrejene.Add(ocenjevalec2Sifra); // Dodaj Ocenjevalca 2 na seznam
+                        }
+                    }
+                }
+
+                // Dodajte preostale recenzente, izogibajte se ponovitvi poročevalca in Ocenjevalca 2
                 foreach (var sifra in item.RecenzentiSifre)
+                {
+                    string sifraString = sifra.ToString();
+                    if (sifraString != item.PorocevalecSifra.ToString() && !recenzentiSifreUrejene.Contains(sifraString))
+                    {
+                        recenzentiSifreUrejene.Add(sifraString);
+                    }
+                }
+
+                // Dodajte preostale recenzente, preskočite poročevalca, če je že dodan
+                /*foreach (var sifra in item.RecenzentiSifre)
                 {
                     if (sifra.ToString() != item.PorocevalecSifra.ToString())
                     {
                         recenzentiSifreUrejene.Add(sifra.ToString());
                     }
-                }
+                }*/
 
                 currentRow++;
                 worksheet.Cell(currentRow, 1).Value = "ARRS-RPROJ/2024"; // Naziv je fiksen za vse vnose
