@@ -124,20 +124,6 @@
             return grozdId == 0 ? (int?)null : grozdId;
         }
 
-
-
-
-        /*var vlogaZavrnjenegaRecenzenta = await _context.GrozdiRecenzenti
-                .Where(gr => gr.RecenzentID == izkljuceniRecenzentId && gr.PrijavaID == prijavaId)
-                .Select(gr => gr.Vloga)
-                .FirstOrDefaultAsync();
-            */
-        /*if (jePorocevalec)
-        {
-            potencialniRecenzenti = potencialniRecenzenti
-                .Where(r => r.Porocevalec != false)
-                .ToList();
-        }*/
         private async Task<Recenzent> NajdiNadomestnegaRecenzentaAsync(int grozdId, int prijavaId, int izkljuceniRecenzentId)
         {
             // Pridobitev podatkov o prijavi in grozdu

@@ -1,4 +1,4 @@
-﻿using Randomizer.Data; // Zamenjajte z ustreznim namespace za vaš DbContext
+﻿using Randomizer.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +42,7 @@ public static class PartnerskaAgencijaDrzavaMap
         else
         {
             // Vrnite privzeto vrednost ali obravnavajte neznano kodo
-            return null; // ali "Neznana"
+            return null; 
         }
     }
 
@@ -71,17 +71,7 @@ public class DodeljevanjeRecenzentovService
             r => r.RecenzentID,
             r => (0, r.SteviloProjektov, (string)null)
         );
-        /*
-        var grozdi = await _context.Grozdi
-                                .Include(g => g.Podpodrocje) // Zagotovite, da je ta vrstica pravilno nastavljena glede na vaš model
-                                .Include(g => g.PrijavaGrozdi)
-                                .ThenInclude(pg => pg.Prijava)
-                                .ToListAsync();
-
-        // Premešaj seznam grozdov z metodo Shuffle
-        //debugger, da vidimo, če se seznam grozdov premeša
-        grozdi.Shuffle();
-        */
+       
         // Najprej pridobite število recenzentov za vsako podpodročje
         var podpodrocjeRecenzenti = await _context.Podpodrocje
             .GroupJoin(
@@ -374,7 +364,7 @@ public class DodeljevanjeRecenzentovService
             prostorRecenzentov[recenzent.RecenzentID] = (trenutno.TrenutnoSteviloPrijav + steviloPrijav, trenutno.MaksimalnoSteviloPrijav, vloga);
         }
     }
-    int steviloUporabe = 0;
+ 
     private async Task<List<Recenzent>> IzberiRecenzenteZaGrozdAsync(Grozdi grozd)
     {
         Console.WriteLine("Novo iskanje recenzentov za grozd");
@@ -391,24 +381,7 @@ public class DodeljevanjeRecenzentovService
             .ToListAsync();
 
 
-        /*if (potencialniRecenzenti.Count < 2) // MinSteviloRecenzentovZaDodelitev je konstanta ali konfiguracija
-        {
-            steviloUporabe++;
-            Console.WriteLine("Uporabil je vsa podpodročja ARIS in anketo: " + steviloUporabe);
-            potencialniRecenzenti.AddRange(await PridobiPotencialneRecenzenteIzPodpodrocjaFull(grozd));
-            // Odstranite podvojene vnose, če je to potrebno
-            potencialniRecenzenti = potencialniRecenzenti.Distinct().ToList();
-        }*/
-        //partnerskeAgencijeKode.AddRange(dodatnePartnerskeAgencijeKode);
-        //partnerskeAgencijeKode = partnerskeAgencijeKode.Distinct().ToList();
-
-        // Pretvorite kode partnerskih agencij v države
-        /*var partnerskeAgencijeDrzave = partnerskeAgencijeKode
-            .Where(koda => !string.IsNullOrEmpty(koda)) // Odstrani null ali prazne kode
-            .Select(koda => PartnerskaAgencijaDrzavaMap.PretvoriVDrzavo(koda))
-            .Where(drzava => drzava != null)
-            .ToList();
-        */
+       
         // Pridobitev seznamov kod partnerskih agencij iz prijav, ki so del tega grozda
         var partnerskeAgencijeKode = await _context.PrijavaGrozdi
             .Where(pg => pg.GrozdID == grozd.GrozdID)
@@ -418,13 +391,7 @@ public class DodeljevanjeRecenzentovService
             .Distinct()
             .ToListAsync();
 
-        // Izpis vseh kod partnerskih agencij pred pretvorbo
-        //Console.WriteLine("Kode partnerskih agencij pred pretvorbo:");
-        foreach (var kode in partnerskeAgencijeKode)
-        {
-            Console.WriteLine($"PartnerskaAgencija1: {kode.PartnerskaAgencija1}, PartnerskaAgencija2: {kode.PartnerskaAgencija2}");
-        }
-
+ 
         // Pretvorite kode partnerskih agencij v države
         var partnerskeAgencijeDrzave = new List<string>();
         foreach (var kode in partnerskeAgencijeKode)
@@ -435,7 +402,7 @@ public class DodeljevanjeRecenzentovService
                 if (drzava1 != null && !partnerskeAgencijeDrzave.Contains(drzava1))
                 {
                     partnerskeAgencijeDrzave.Add(drzava1);
-                    Console.WriteLine($"Koda {kode.PartnerskaAgencija1} pretvorjena v državo: {drzava1}");
+                  
                 }
             }
 
@@ -445,18 +412,10 @@ public class DodeljevanjeRecenzentovService
                 if (drzava2 != null && !partnerskeAgencijeDrzave.Contains(drzava2))
                 {
                     partnerskeAgencijeDrzave.Add(drzava2);
-                    Console.WriteLine($"Koda {kode.PartnerskaAgencija2} pretvorjena v državo: {drzava2}");
+                    
                 }
             }
         }
-
-        // Končni seznam držav partnerskih agencij
-        Console.WriteLine("Končni seznam držav partnerskih agencij:");
-        foreach (var drzava in partnerskeAgencijeDrzave.Distinct())
-        {
-            Console.WriteLine(drzava);
-        }
-
 
         // Shranite originalni seznam potencialnih recenzentov
         var originalniPotencialniRecenzenti = potencialniRecenzenti.ToList();
@@ -466,13 +425,6 @@ public class DodeljevanjeRecenzentovService
             .Where(r => !partnerskeAgencijeDrzave.Contains(r.Drzava))
             .ToList();
 
-        // Izpis recenzentov, ki so bili izločeni
-        var izloceniRecenzenti = originalniPotencialniRecenzenti.Except(potencialniRecenzenti).ToList();
-        Console.WriteLine("Recenzenti izločeni na podlagi države:");
-        foreach (var recenzent in izloceniRecenzenti)
-        {
-            Console.WriteLine($"RecenzentID: {recenzent.RecenzentID}, Država: {recenzent.Drzava}");
-        }
 
         // Pridobite seznam PrijavaID, ki so del tega grozda
         var prijaveVGrozd = await _context.PrijavaGrozdi
@@ -504,12 +456,6 @@ public class DodeljevanjeRecenzentovService
             .Where(r => !izloceniRecenzentiCOI.Contains(r.RecenzentID))
             .ToList();
 
-
-
-        /*if (izloceniRecenzentiCOI.Any())
-        {
-            //Console.WriteLine($"--------Najdeni so bili recenzenti s konfliktom interesov za grozd {grozd.GrozdID}. Izločeni recenzenti: {string.Join(", ", izloceniRecenzentiCOI)}");
-        }*/
 
         //-------------------------------------------------------------------------------------
 
@@ -682,20 +628,6 @@ public class DodeljevanjeRecenzentovService
         return grozdiViewModels;
     }
 
-    private async Task<List<Recenzent>> PridobiPotencialneRecenzenteIzPodpodrocjaFull(Grozdi grozd)
-    {
-        // Logika za pridobivanje recenzentov iz recenzentipodpodrocjafull, ki so povezani s podpodročjem grozda
-        var recenzentiPodpodrocjaFull = await _context.RecenzentiPodpodrocjaFull
-            .Where(rpf => rpf.PodpodrocjeID == grozd.PodpodrocjeID)
-            .Select(rpf => rpf.RecenzentID)
-            .ToListAsync();
-
-        var potencialniRecenzenti = await _context.Recenzenti
-            .Where(r => recenzentiPodpodrocjaFull.Contains(r.RecenzentID))
-            .ToListAsync();
-
-        return potencialniRecenzenti;
-    }
     public async Task PocistiDodelitveRecenzentovAsync()
     {
         // Pridobi vse obstoječe dodelitve recenzentov
