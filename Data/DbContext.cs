@@ -34,5 +34,6 @@ namespace Randomizer.Data
         public DbSet<RecenzentiPodrocja> RecenzentiPodrocja { get; set; }
         public DbSet<RecenzentiZavrnitve> RecenzentiZavrnitve { get; set; }
         public DbSet<Randomizer.Models.RecenzentiPodpodrocjaFull> RecenzentiPodpodrocjaFull { get; set; } = default!;
+        public DbSet<Randomizer.Models.GrozdiRecenzentiZavrnitve> GrozdiRecenzentiZavrnitve { get; set; } = default!;
     }
 }

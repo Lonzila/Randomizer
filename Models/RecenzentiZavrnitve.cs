@@ -8,5 +8,7 @@
         public int PrijavaID { get; set; }
         public Prijave Prijava { get; set; }
         public string? Razlog { get; set; }
+        
+        public int GrozdID { get; set; }
     }
 }

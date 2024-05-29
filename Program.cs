@@ -11,6 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<DodeljevanjeRecenzentovService>();
 builder.Services.AddScoped<RecenzentZavrnitveService>();
+builder.Services.AddScoped<GrozdiRecenzentZavrnitveService>();
 
 var app = builder.Build();
 // Logiranje podatkov o bazi po zagonu aplikacije

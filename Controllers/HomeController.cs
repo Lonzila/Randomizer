@@ -9,11 +9,13 @@ namespace Randomizer.Controllers
     {
         private readonly DodeljevanjeRecenzentovService _dodeljevanjeRecenzentovService;
         private readonly RecenzentZavrnitveService _recenzentZavrnitveService;
-
-        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService)
+        private readonly GrozdiRecenzentZavrnitveService _grozdiRecenzentZavrnitveService;
+        
+        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService, GrozdiRecenzentZavrnitveService grozdiRecenzentZavrnitveService)
         {
             _dodeljevanjeRecenzentovService = dodeljevanjeRecenzentovService;
             _recenzentZavrnitveService = recenzentZavrnitveService;
+            _grozdiRecenzentZavrnitveService = grozdiRecenzentZavrnitveService;
         }
 
         public IActionResult Index()
@@ -40,6 +42,12 @@ namespace Randomizer.Controllers
         public async Task<IActionResult> ObdelajZavrnitve()
         {
             await _recenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
+            return RedirectToAction("PrikazPosodobljenihRecenzentov"); // Preusmeritev na novo akcijo
+        }
+
+        public async Task<IActionResult> ObdelajZavrnitveGrozda()
+        {
+            await _grozdiRecenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync2();
             return RedirectToAction("PrikazPosodobljenihRecenzentov"); // Preusmeritev na novo akcijo
         }
     }
