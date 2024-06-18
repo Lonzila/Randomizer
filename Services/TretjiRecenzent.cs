@@ -48,7 +48,7 @@ namespace Randomizer.Services
                 .Where(p => prijavaIDs.Contains(p.PrijavaID))
                 .ToListAsync();
 
-            var dodelitve = new List<(int PrijavaID, string StevilkaPrijave, int RecenzentID, int SifraRecenzenta)>();
+            var dodelitve = new List<(int PrijavaID, int StevilkaPrijave, int RecenzentID, int SifraRecenzenta)>();
 
             foreach (var prijava in prijave)
             {
