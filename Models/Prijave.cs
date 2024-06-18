@@ -6,7 +6,7 @@ namespace Randomizer.Models
     {
         [Key]
         public int PrijavaID { get; set; }
-        public string StevilkaPrijave { get; set; }
+        public int StevilkaPrijave { get; set; }
         public string VrstaProjekta { get; set; }
         public int? PodpodrocjeID { get; set; }
         public int? DodatnoPodpodrocjeID { get; set; }
