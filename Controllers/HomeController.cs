@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Randomizer.Models;
-using System.Diagnostics;
 using Randomizer.Services;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Randomizer.Controllers
 {
@@ -10,12 +13,14 @@ namespace Randomizer.Controllers
         private readonly DodeljevanjeRecenzentovService _dodeljevanjeRecenzentovService;
         private readonly RecenzentZavrnitveService _recenzentZavrnitveService;
         private readonly GrozdiRecenzentZavrnitveService _grozdiRecenzentZavrnitveService;
-        
-        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService, GrozdiRecenzentZavrnitveService grozdiRecenzentZavrnitveService)
+        private readonly TretjiRecenzentService _tretjiRecenzentService;
+
+        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService, GrozdiRecenzentZavrnitveService grozdiRecenzentZavrnitveService, TretjiRecenzentService tretjiRecenzentService)
         {
             _dodeljevanjeRecenzentovService = dodeljevanjeRecenzentovService;
             _recenzentZavrnitveService = recenzentZavrnitveService;
             _grozdiRecenzentZavrnitveService = grozdiRecenzentZavrnitveService;
+            _tretjiRecenzentService = tretjiRecenzentService;
         }
 
         public IActionResult Index()
@@ -32,23 +37,48 @@ namespace Randomizer.Controllers
         public async Task<IActionResult> PocistiDodelitve()
         {
             await _dodeljevanjeRecenzentovService.PocistiDodelitveRecenzentovAsync();
-            return RedirectToAction("Index"); // Ali kamor koli že želite preusmeriti uporabnika po èišèenju
+            return RedirectToAction("Index");
         }
+
         public async Task<IActionResult> PrikazPosodobljenihRecenzentov()
         {
             var grozdiViewModels = await _dodeljevanjeRecenzentovService.PridobiInformacijeZaIzpisAsync();
-            return View("~/Views/Dodeljevanje/PrikazGrozdov.cshtml", grozdiViewModels); // Uporabite natanèno pot do pogleda
+            return View("~/Views/Dodeljevanje/PrikazGrozdov.cshtml", grozdiViewModels);
         }
+
         public async Task<IActionResult> ObdelajZavrnitve()
         {
             await _recenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
-            return RedirectToAction("PrikazPosodobljenihRecenzentov"); // Preusmeritev na novo akcijo
+            return RedirectToAction("PrikazPosodobljenihRecenzentov");
         }
 
         public async Task<IActionResult> ObdelajZavrnitveGrozda()
         {
             await _grozdiRecenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync2();
-            return RedirectToAction("PrikazPosodobljenihRecenzentov"); // Preusmeritev na novo akcijo
+            return RedirectToAction("PrikazPosodobljenihRecenzentov");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DodeliTretjegaRecenzenta(string prijavaIDs)
+        {
+            if (string.IsNullOrEmpty(prijavaIDs))
+            {
+                return RedirectToAction("Index");
+            }
+
+            var prijavaIDsList = prijavaIDs.Split(',')
+                                           .Select(id => int.TryParse(id.Trim(), out var parsedId) ? parsedId : (int?)null)
+                                           .Where(id => id.HasValue)
+                                           .Select(id => id.Value)
+                                           .ToList();
+
+            if (!prijavaIDsList.Any())
+            {
+                return RedirectToAction("Index");
+            }
+
+            await _tretjiRecenzentService.DodeliTretjegaRecenzentaAsync(prijavaIDsList);
+            return RedirectToAction("PrikazPosodobljenihRecenzentov");
         }
     }
 }

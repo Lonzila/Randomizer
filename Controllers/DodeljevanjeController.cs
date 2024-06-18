@@ -3,18 +3,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Randomizer.Data;
 using Randomizer.Models;
+using Randomizer.Services;
 
 public class DodeljevanjeController : Controller
 {
     private readonly DodeljevanjeRecenzentovService _dodeljevanjeRecenzentovService;
+    private readonly RecenzentZavrnitveService _recenzentZavrnitveService;
     private readonly ApplicationDbContext _context;
 
-     public DodeljevanjeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, ApplicationDbContext context)
+    public DodeljevanjeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService, ApplicationDbContext context)
     {
         _dodeljevanjeRecenzentovService = dodeljevanjeRecenzentovService;
+        _recenzentZavrnitveService = recenzentZavrnitveService;
         _context = context;
     }
- 
+
 
     public async Task<IActionResult> ExportToExcel()
     {
@@ -225,6 +228,35 @@ public class DodeljevanjeController : Controller
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------
 
+    public async Task<IActionResult> ExportMenjaveToExcel()
+    {
+        var menjave = _recenzentZavrnitveService.GetMenjaveRecenzentov();
+
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("Menjave Recenzentov");
+            worksheet.Cell("A1").Value = "Originalni Recenzent ID";
+            worksheet.Cell("B1").Value = "Predlagan Recenzent ID";
+
+            int currentRow = 2;
+            foreach (var menjava in menjave)
+            {
+                worksheet.Cell(currentRow, 1).Value = menjava.OriginalniRecenzentID;
+                worksheet.Cell(currentRow, 2).Value = menjava.NadomestniRecenzentID;
+                currentRow++;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "MenjaveRecenzentov.xlsx");
+            }
+        }
+    }
+
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------
     public async Task<IActionResult> DodeliRecenzente()
     {
         await _dodeljevanjeRecenzentovService.DodeliRecenzenteAsync();

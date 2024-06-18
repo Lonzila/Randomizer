@@ -6,7 +6,14 @@
     <h1 class="display-4">Welcome</h1>
     <a class="btn btn-primary" href="@Url.Action("DodeliRecenzente", "Home")">Začni dodeljevanje recenzentov</a>
     <a class="btn btn-danger" href="@Url.Action("PocistiDodelitve", "Home")">Počisti dodelitve recenzentov</a>
-
     <a href="@Url.Action("ObdelajZavrnitve", "Home")" class="btn btn-primary">Obdelaj zavrnitve recenzentov</a>
     <a href="@Url.Action("ObdelajZavrnitveGrozda", "Home")" class="btn btn-primary">Obdelaj zavrnitve grozda recenzentov</a>
+
+    <form asp-action="DodeliTretjegaRecenzenta" method="post" class="mt-3">
+        <div class="form-group">
+            <label for="prijavaIDs">Vnesite ID-je prijav (ločene z vejico):</label>
+            <input type="text" class="form-control" id="prijavaIDs" name="prijavaIDs" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Dodeli tretjega recenzenta</button>
+    </form>
 </div>

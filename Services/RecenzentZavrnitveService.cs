@@ -38,9 +38,11 @@
     {
         private readonly ApplicationDbContext _context;
         private Dictionary<int, (int trenutnoSteviloPrijav, int? maksimalnoSteviloPrijav, string vloga)> recenzentiStanje;
+        private List<(int OriginalniRecenzentID, int NadomestniRecenzentID)> menjaveRecenzentov; 
         public RecenzentZavrnitveService(ApplicationDbContext context)
         {
             _context = context;
+            menjaveRecenzentov = new List<(int, int)>();
         }
 
         public async Task ObdelajZavrnitveInDodeliNoveRecenzenteAsync()
@@ -93,10 +95,18 @@
                         .Where(gr => gr.GrozdID == grozdID && gr.RecenzentID == recenzentID && prijaveVGrozdih.Contains(gr.PrijavaID))
                         .ToListAsync();
 
+                    if (!originalneDodelitve.Any())
+                    {
+                        Console.WriteLine($"RecenzentID {recenzentID} za GrozdID {grozdID} ni najden v tabeli GrozdiRecenzenti za prijave {string.Join(", ", prijaveVGrozdih)}.");
+                        continue;
+                    }
+
                     foreach (var dodelitev in originalneDodelitve)
                     {
                         dodelitev.RecenzentID = nadomestniRecenzent.RecenzentID;
                         _context.GrozdiRecenzenti.Update(dodelitev);
+
+                        menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
                     }
 
                     if (recenzentiStanje.ContainsKey(recenzentID))
@@ -111,12 +121,17 @@
                         var vlogaZavrnjenegaRecenzenta = recenzentiStanje[recenzentID].vloga;
                         recenzentiStanje[nadomestniRecenzent.RecenzentID] = (trenutno.trenutnoSteviloPrijav + originalneDodelitve.Count, trenutno.maksimalnoSteviloPrijav, vlogaZavrnjenegaRecenzenta);
                     }
+                    Console.WriteLine($"Dodano: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}");
                 }
             }
-
+            Console.WriteLine(menjaveRecenzentov);
             await _context.SaveChangesAsync();
         }
-
+        public List<(int OriginalniRecenzentID, int NadomestniRecenzentID)> GetMenjaveRecenzentov()
+        {
+            Console.WriteLine($"Število menjav: {menjaveRecenzentov.Count}");
+            return menjaveRecenzentov;
+        }
         private async Task<Recenzent> NajdiNadomestnegaRecenzentaAsync(int grozdId, List<int> prijaveVGrozdih, int izkljuceniRecenzentId)
         {
             // Pridobitev podatkov o grozdu
@@ -186,6 +201,7 @@
 
             // Filtriranje recenzentov glede na prostor in vlogo
             var skupnoSteviloPrijavVGrozdu = prijaveVGrozdih.Count;
+            
             var recenzentiZDovoljProstoraInVlogo = potencialniRecenzenti
                 .Where(r => recenzentiStanje.ContainsKey(r.RecenzentID) &&
                             recenzentiStanje[r.RecenzentID].trenutnoSteviloPrijav + skupnoSteviloPrijavVGrozdu <= recenzentiStanje[r.RecenzentID].maksimalnoSteviloPrijav &&
@@ -205,16 +221,17 @@
             // Poskus izbire nadomestnega recenzenta iz recenzentov, ki že imajo prijave
             if (recenzentiZObstojecimiPrijavami.Any())
             {
-                Console.WriteLine("Vrnilo je recenzenta z prijavami");
+                //Console.WriteLine("Vrnilo je recenzenta z prijavami");
                 var random = new Random();
                 var nakljucniRecenzentIndex = random.Next(recenzentiZObstojecimiPrijavami.Count);
+                //Console.WriteLine("Število prijav, ki jih že ima: " + recenzentiStanje[recenzentiZObstojecimiPrijavami[nakljucniRecenzentIndex].RecenzentID].trenutnoSteviloPrijav + "Število prijav, ki jih bo sprejel: " + skupnoSteviloPrijavVGrozdu);
                 return recenzentiZObstojecimiPrijavami[nakljucniRecenzentIndex];
             }
 
             // Če ni recenzentov z obstoječimi prijavami, poskus izbire iz preostalih recenzentov
             if (recenzentiBrezPrijav.Any())
             {
-                Console.WriteLine("Vrnilo je recenzenta brez prijav");
+                //Console.WriteLine("Vrnilo je recenzenta brez prijav");
                 var random = new Random();
                 var nakljucniRecenzentIndex = random.Next(recenzentiBrezPrijav.Count);
                 return recenzentiBrezPrijav[nakljucniRecenzentIndex];

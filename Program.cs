@@ -10,6 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<DodeljevanjeRecenzentovService>();
+builder.Services.AddScoped<TretjiRecenzentService>();
 builder.Services.AddScoped<RecenzentZavrnitveService>();
 builder.Services.AddScoped<GrozdiRecenzentZavrnitveService>();
 
