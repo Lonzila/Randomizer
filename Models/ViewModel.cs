@@ -10,7 +10,7 @@
     public class PrijavaViewModel
     {
         public int PrijavaID { get; set; }
-        public string StevilkaPrijave { get; set; }
+        public int StevilkaPrijave { get; set; }
         public string Naslov { get; set; }
         public bool Interdisc { get; set; }
         public int SteviloRecenzentov { get; set; }

@@ -74,7 +74,7 @@
 
             // Skupinska obravnava zavrnitev po grozdu in recenzentu
             var grozdneZavrnitve = zavrnitve.GroupBy(z => new { z.RecenzentID, z.GrozdID });
-
+            var steviloNeNajdenihRecenzentov = 0;
             foreach (var skupina in grozdneZavrnitve)
             {
                 int recenzentID = skupina.Key.RecenzentID;
@@ -89,24 +89,29 @@
 
                 if (nadomestniRecenzent == null) continue;
 
+                var originalneDodelitve = await _context.GrozdiRecenzenti
+                    .Where(gr => gr.GrozdID == grozdID && gr.RecenzentID == recenzentID && prijaveVGrozdih.Contains(gr.PrijavaID))
+                    .ToListAsync();
+
                 foreach (var zavrnitev in skupina)
                 {
-                    var originalneDodelitve = await _context.GrozdiRecenzenti
-                        .Where(gr => gr.GrozdID == grozdID && gr.RecenzentID == recenzentID && prijaveVGrozdih.Contains(gr.PrijavaID))
-                        .ToListAsync();
-
+                    
                     if (!originalneDodelitve.Any())
                     {
-                        Console.WriteLine($"RecenzentID {recenzentID} za GrozdID {grozdID} ni najden v tabeli GrozdiRecenzenti za prijave {string.Join(", ", prijaveVGrozdih)}.");
+                        steviloNeNajdenihRecenzentov++;
+                        
+                        //Console.WriteLine($"RecenzentID {recenzentID} za GrozdID {grozdID} ni najden v tabeli GrozdiRecenzenti za prijave {string.Join(", ", prijaveVGrozdih)}.");
                         continue;
                     }
-
+                    
                     foreach (var dodelitev in originalneDodelitve)
                     {
                         dodelitev.RecenzentID = nadomestniRecenzent.RecenzentID;
-                        _context.GrozdiRecenzenti.Update(dodelitev);
+                        //_context.GrozdiRecenzenti.Update(dodelitev);
 
                         menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
+                        
+                        Console.WriteLine($"Dodano: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}, Prijava = {dodelitev.PrijavaID}");
                     }
 
                     if (recenzentiStanje.ContainsKey(recenzentID))
@@ -121,9 +126,11 @@
                         var vlogaZavrnjenegaRecenzenta = recenzentiStanje[recenzentID].vloga;
                         recenzentiStanje[nadomestniRecenzent.RecenzentID] = (trenutno.trenutnoSteviloPrijav + originalneDodelitve.Count, trenutno.maksimalnoSteviloPrijav, vlogaZavrnjenegaRecenzenta);
                     }
-                    Console.WriteLine($"Dodano: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}");
+                    //Console.WriteLine($"Dodano: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}, {dodelitveZaIzpis}");
+                    //Console.WriteLine($"Dodano: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}");
                 }
             }
+            Console.WriteLine(steviloNeNajdenihRecenzentov);
             Console.WriteLine(menjaveRecenzentov);
             await _context.SaveChangesAsync();
         }

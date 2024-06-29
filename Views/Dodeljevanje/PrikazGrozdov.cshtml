@@ -1,7 +1,5 @@
 ﻿@model List<GrozdiViewModel>
 <div><a class="btn btn-success" href="@Url.Action("ExportToExcel", "Dodeljevanje")">Izvozi v Excel</a></div>
-
-<div><a class="btn btn-success" href="@Url.Action("ExportMenjaveToExcel", "Dodeljevanje")">Izvozi v Excel kontrolna</a></div>
 @foreach (var grozd in Model)
 {
     <div>
