@@ -230,19 +230,21 @@ public class DodeljevanjeController : Controller
 
     public async Task<IActionResult> ExportMenjaveToExcel()
     {
-        var menjave = _recenzentZavrnitveService.GetMenjaveRecenzentov();
+        var menjave = _recenzentZavrnitveService.PridobiMenjaveRecenzentov();
 
         using (var workbook = new XLWorkbook())
         {
             var worksheet = workbook.Worksheets.Add("Menjave Recenzentov");
             worksheet.Cell("A1").Value = "Originalni Recenzent ID";
             worksheet.Cell("B1").Value = "Predlagan Recenzent ID";
+            worksheet.Cell("C1").Value = "Prijava ID";
 
             int currentRow = 2;
             foreach (var menjava in menjave)
             {
                 worksheet.Cell(currentRow, 1).Value = menjava.OriginalniRecenzentID;
                 worksheet.Cell(currentRow, 2).Value = menjava.NadomestniRecenzentID;
+                worksheet.Cell(currentRow, 3).Value = menjava.PrijavaID;
                 currentRow++;
             }
 
@@ -266,6 +268,20 @@ public class DodeljevanjeController : Controller
     {
         var grozdi = await _dodeljevanjeRecenzentovService.PridobiInformacijeZaIzpisAsync();
         return View(grozdi);
+    }
+
+    // Nova metoda za obdelavo zavrnitev in preusmeritev na prikaz zamenjav
+    public async Task<IActionResult> ObdelajZavrnitve()
+    {
+        await _recenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
+        return RedirectToAction("PrikazZamenjav");
+    }
+
+    // Nova metoda za prikaz zamenjav
+    public IActionResult PrikazZamenjav()
+    {
+        var menjave = _recenzentZavrnitveService.PridobiMenjaveRecenzentov();
+        return View(menjave);
     }
 
 

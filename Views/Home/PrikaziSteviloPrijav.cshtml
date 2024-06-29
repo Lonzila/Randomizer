@@ -1,0 +1,22 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Število Prijav na Recenzenta</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Recenzent ID</th>
+            <th>Šifra Recenzenta</th>
+            <th>Število Prijav</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rezultat in Model)
+        {
+            <tr>
+                <td>@rezultat.RecenzentID</td>
+                <td>@rezultat.Sifra</td>
+                <td>@rezultat.SteviloPrijav</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,26 @@
+﻿@model List<MenjavaRecenzentaViewModel>
+<div><a class="btn btn-success" href="@Url.Action("ExportToExcel", "Dodeljevanje")">Izvozi v Excel</a></div>
+
+<div><a class="btn btn-success" href="@Url.Action("ExportMenjaveToExcel", "Dodeljevanje")">Izvozi v Excel</a></div>
+
+<h2>Menjave Recenzentov</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Originalni Recenzent ID</th>
+            <th>Nadomestni Recenzent ID</th>
+            <th>Prijava ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var menjava in Model)
+        {
+            <tr>
+                <td>@menjava.OriginalniRecenzentID</td>
+                <td>@menjava.NadomestniRecenzentID</td>
+                <td>@menjava.PrijavaID</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

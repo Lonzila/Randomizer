@@ -38,11 +38,14 @@
     {
         private readonly ApplicationDbContext _context;
         private Dictionary<int, (int trenutnoSteviloPrijav, int? maksimalnoSteviloPrijav, string vloga)> recenzentiStanje;
-        private List<(int OriginalniRecenzentID, int NadomestniRecenzentID)> menjaveRecenzentov; 
+        private List<(int OriginalniRecenzentID, int NadomestniRecenzentID)> menjaveRecenzentov;
+        private List<MenjavaRecenzentaViewModel> menjaveRecenzentovPrikaz;
+
         public RecenzentZavrnitveService(ApplicationDbContext context)
         {
             _context = context;
             menjaveRecenzentov = new List<(int, int)>();
+            menjaveRecenzentovPrikaz = new List<MenjavaRecenzentaViewModel>();
         }
 
         public async Task ObdelajZavrnitveInDodeliNoveRecenzenteAsync()
@@ -110,7 +113,12 @@
                         //_context.GrozdiRecenzenti.Update(dodelitev);
 
                         menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
-                        
+                        menjaveRecenzentovPrikaz.Add(new MenjavaRecenzentaViewModel
+                        {
+                            OriginalniRecenzentID = recenzentID,
+                            NadomestniRecenzentID = nadomestniRecenzent.RecenzentID,
+                            PrijavaID = dodelitev.PrijavaID
+                        });
                         Console.WriteLine($"Dodano: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}, Prijava = {dodelitev.PrijavaID}");
                     }
 
@@ -132,7 +140,13 @@
             }
             Console.WriteLine(steviloNeNajdenihRecenzentov);
             Console.WriteLine(menjaveRecenzentov);
+
             await _context.SaveChangesAsync();
+        }
+
+        public List<MenjavaRecenzentaViewModel> PridobiMenjaveRecenzentov()
+        {
+            return menjaveRecenzentovPrikaz;
         }
         public List<(int OriginalniRecenzentID, int NadomestniRecenzentID)> GetMenjaveRecenzentov()
         {

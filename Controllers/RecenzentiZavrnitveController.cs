@@ -14,6 +14,7 @@ namespace Randomizer.Controllers
     {
         private readonly ApplicationDbContext _context;
 
+
         public RecenzentiZavrnitveController(ApplicationDbContext context)
         {
             _context = context;

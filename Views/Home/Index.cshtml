@@ -6,7 +6,7 @@
     <h1 class="display-4">Welcome</h1>
     <a class="btn btn-primary" href="@Url.Action("DodeliRecenzente", "Home")">Začni dodeljevanje recenzentov</a>
     <a class="btn btn-danger" href="@Url.Action("PocistiDodelitve", "Home")">Počisti dodelitve recenzentov</a>
-    <a href="@Url.Action("ObdelajZavrnitve", "Home")" class="btn btn-primary">Obdelaj zavrnitve recenzentov</a>
+    <a href="@Url.Action("ObdelajZavrnitve", "Dodeljevanje")" class="btn btn-primary">Obdelaj zavrnitve recenzentov</a>
     <a href="@Url.Action("ObdelajZavrnitveGrozda", "Home")" class="btn btn-primary">Obdelaj zavrnitve grozda recenzentov</a>
 
     <form asp-action="DodeliTretjegaRecenzenta" method="post" class="mt-3">
@@ -16,4 +16,43 @@
         </div>
         <button type="submit" class="btn btn-primary">Dodeli tretjega recenzenta</button>
     </form>
+
+    <form asp-action="IskanjeRecenzenta" method="post" class="mt-3">
+        <div class="form-group">
+            <label for="sifraRecenzenta">Šifra recenzenta:</label>
+            <input type="text" class="form-control" id="sifraRecenzenta" name="sifraRecenzenta" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Išči recenzenta</button>
+    </form>
+
+    @if (ViewBag.RecenzentID != null)
+    {
+        <div class="alert alert-success mt-3">
+            Recenzent ID: @ViewBag.RecenzentID
+        </div>
+    }
+
+    <form asp-action="IskanjePrijave" method="post" class="mt-3">
+        <div class="form-group">
+            <label for="stevilkaPrijave">Številka prijave:</label>
+            <input type="text" class="form-control" id="stevilkaPrijave" name="stevilkaPrijave" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Išči prijavo</button>
+    </form>
+
+    @if (ViewBag.PrijavaID != null)
+    {
+        <div class="alert alert-success mt-3">
+            Prijava ID: @ViewBag.PrijavaID
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <div class="alert alert-danger mt-3">
+            @ViewBag.Message
+        </div>
+    }
+
+    <a class="btn btn-info mt-3" href="@Url.Action("PrikaziSteviloPrijav", "Home")">Prikazi število prijav na recenzenta</a>
 </div>
