@@ -5,6 +5,10 @@
         public int OriginalniRecenzentID { get; set; }
         public int NadomestniRecenzentID { get; set; }
         public int PrijavaID { get; set; }
+        public int OriginalniRecenzentSifra { get; set; }
+        public int NadomestniRecenzentSifra { get; set; }
+        public int StevilkaPrijave { get; set; }
+        public string NadomestniRecenzentImePriimek { get; set; }
 
         public override bool Equals(object obj)
         {

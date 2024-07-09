@@ -228,7 +228,6 @@ public class DodeljevanjeController : Controller
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------
-
     public async Task<IActionResult> ExportMenjaveToExcel()
     {
         var menjave = JsonConvert.DeserializeObject<List<MenjavaRecenzentaViewModel>>(HttpContext.Session.GetString("MenjaveRecenzentov"));
@@ -240,16 +239,18 @@ public class DodeljevanjeController : Controller
         using (var workbook = new XLWorkbook())
         {
             var worksheet = workbook.Worksheets.Add("Menjave Recenzentov");
-            worksheet.Cell("A1").Value = "Originalni Recenzent ID";
-            worksheet.Cell("B1").Value = "Nadomestni Recenzent ID";
-            worksheet.Cell("C1").Value = "Prijava ID";
+            worksheet.Cell("A1").Value = "Številka Prijave";
+            worksheet.Cell("B1").Value = "Originalni Recenzent Šifra";
+            worksheet.Cell("C1").Value = "Nadomestni Recenzent Šifra";
+            worksheet.Cell("D1").Value = "Nadomestni Recenzent Ime in Priimek";
 
             int currentRow = 2;
             foreach (var menjava in menjave)
             {
-                worksheet.Cell(currentRow, 1).Value = menjava.OriginalniRecenzentID;
-                worksheet.Cell(currentRow, 2).Value = menjava.NadomestniRecenzentID;
-                worksheet.Cell(currentRow, 3).Value = menjava.PrijavaID;
+                worksheet.Cell(currentRow, 1).Value = menjava.StevilkaPrijave;
+                worksheet.Cell(currentRow, 2).Value = menjava.OriginalniRecenzentSifra;
+                worksheet.Cell(currentRow, 3).Value = menjava.NadomestniRecenzentSifra;
+                worksheet.Cell(currentRow, 4).Value = menjava.NadomestniRecenzentImePriimek;
                 currentRow++;
             }
 
@@ -261,7 +262,6 @@ public class DodeljevanjeController : Controller
             }
         }
     }
-
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------
     public async Task<IActionResult> DodeliRecenzente()
@@ -287,6 +287,10 @@ public class DodeljevanjeController : Controller
     public IActionResult PrikazZamenjav()
     {
         var menjave = JsonConvert.DeserializeObject<List<MenjavaRecenzentaViewModel>>(HttpContext.Session.GetString("MenjaveRecenzentov"));
+        if (menjave == null || !menjave.Any())
+        {
+            return Content("Ni podatkov za prikaz.");
+        }
         Console.WriteLine("Število menjav za prikaz: " + menjave.Count);
         return View(menjave);
     }

@@ -213,6 +213,8 @@ namespace Randomizer.Controllers
                 GrozdID = grozdRecenzent.GrozdID,
                 Razlog = razlogZavrnitve
             };
+            // Izpiši zavrnitev v konzolo
+            Console.WriteLine($"ID: {zavrnitev.ID}, RecenzentID: {zavrnitev.RecenzentID}, PrijavaID: {zavrnitev.PrijavaID}, GrozdID: {zavrnitev.GrozdID}, Razlog: {zavrnitev.Razlog}");
 
             _context.RecenzentiZavrnitve.Add(zavrnitev);
             await _context.SaveChangesAsync();

@@ -61,19 +61,26 @@
                         PosodobiRecenzentStanje(recenzentID, -1);
                         PosodobiRecenzentStanje(nadomestniRecenzent.RecenzentID, 1, _recenzentiStanje[recenzentID].vloga);
 
-                        _menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
+                        var originalniRecenzent = await _context.Recenzenti.FindAsync(recenzentID);
+                        var nadomestniRecenzentData = await _context.Recenzenti.FindAsync(nadomestniRecenzent.RecenzentID);
+                        var prijava = await _context.Prijave.FindAsync(dodelitev.PrijavaID);
+
                         var menjava = new MenjavaRecenzentaViewModel
                         {
                             OriginalniRecenzentID = recenzentID,
                             NadomestniRecenzentID = nadomestniRecenzent.RecenzentID,
-                            PrijavaID = dodelitev.PrijavaID
+                            PrijavaID = dodelitev.PrijavaID,
+                            OriginalniRecenzentSifra = originalniRecenzent.Sifra,
+                            NadomestniRecenzentSifra = nadomestniRecenzentData.Sifra,
+                            StevilkaPrijave = prijava.StevilkaPrijave,
+                            NadomestniRecenzentImePriimek = $"{nadomestniRecenzentData.Ime} {nadomestniRecenzentData.Priimek}"  // Dodano ime in priimek
                         };
 
                         if (!_menjaveRecenzentovPrikaz.Contains(menjava))
                         {
                             _menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
                             _menjaveRecenzentovPrikaz.Add(menjava);
-                            Console.WriteLine($"Menjava: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}, PrijavaID = {dodelitev.PrijavaID}");
+                            Console.WriteLine($"Menjava: OriginalniRecenzentSifra = {menjava.OriginalniRecenzentSifra}, NadomestniRecenzentSifra = {menjava.NadomestniRecenzentSifra}, StevilkaPrijave = {menjava.StevilkaPrijave}");
                         }
                     }
                 }

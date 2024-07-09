@@ -7,20 +7,21 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Originalni Recenzent ID</th>
-            <th>Nadomestni Recenzent ID</th>
-            <th>Prijava ID</th>
+            <th>Številka Prijave</th>
+            <th>Originalni Recenzent Šifra</th>
+            <th>Nadomestni Recenzent Šifra</th>
+            <th>Nadomestni Recenzent Ime in Priimek</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var menjava in Model)
         {
             <tr>
-                <td>@menjava.OriginalniRecenzentID</td>
-                <td>@menjava.NadomestniRecenzentID</td>
-                <td>@menjava.PrijavaID</td>
+                <td>@menjava.StevilkaPrijave</td>
+                <td>@menjava.OriginalniRecenzentSifra</td>
+                <td>@menjava.NadomestniRecenzentSifra</td>
+                <td>@menjava.NadomestniRecenzentImePriimek</td>
             </tr>
         }
     </tbody>
 </table>
-
