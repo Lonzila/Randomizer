@@ -64,7 +64,7 @@ namespace Randomizer.Controllers
 
         public async Task<IActionResult> ObdelajZavrnitveGrozda()
         {
-            await _grozdiRecenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync2();
+            await _grozdiRecenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
             return RedirectToAction("PrikazPosodobljenihRecenzentov");
         }
 

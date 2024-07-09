@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Randomizer.Models;
+    using Newtonsoft.Json;
 
     public class RecenzentZavrnitveService
     {
@@ -21,9 +22,10 @@
             _menjaveRecenzentov = new List<(int, int)>();
             _menjaveRecenzentovPrikaz = new List<MenjavaRecenzentaViewModel>();
         }
-
-        public async Task ObdelajZavrnitveInDodeliNoveRecenzenteAsync()
+       
+        public async Task ObdelajZavrnitveInDodeliNoveRecenzenteAsync(HttpContext httpContext)
         {
+  
             _recenzentiStanje = await RecenzentHelper.InicializirajRecenzenteStanjeAsync(_context);
 
             var zavrnitve = await _context.RecenzentiZavrnitve.ToListAsync();
@@ -60,16 +62,24 @@
                         PosodobiRecenzentStanje(nadomestniRecenzent.RecenzentID, 1, _recenzentiStanje[recenzentID].vloga);
 
                         _menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
-                        _menjaveRecenzentovPrikaz.Add(new MenjavaRecenzentaViewModel
+                        var menjava = new MenjavaRecenzentaViewModel
                         {
                             OriginalniRecenzentID = recenzentID,
                             NadomestniRecenzentID = nadomestniRecenzent.RecenzentID,
                             PrijavaID = dodelitev.PrijavaID
-                        });
+                        };
+
+                        if (!_menjaveRecenzentovPrikaz.Contains(menjava))
+                        {
+                            _menjaveRecenzentov.Add((recenzentID, nadomestniRecenzent.RecenzentID));
+                            _menjaveRecenzentovPrikaz.Add(menjava);
+                            Console.WriteLine($"Menjava: OriginalniRecenzentID = {recenzentID}, NadomestniRecenzentID = {nadomestniRecenzent.RecenzentID}, PrijavaID = {dodelitev.PrijavaID}");
+                        }
                     }
                 }
             }
-
+           
+            ShraniMenjaveVSejo(httpContext);
             await _context.SaveChangesAsync();
         }
 
@@ -171,15 +181,11 @@
             return recenzenti.OrderBy(x => random.Next()).FirstOrDefault();
         }
 
-        public List<MenjavaRecenzentaViewModel> PridobiMenjaveRecenzentov()
+       
+        public void ShraniMenjaveVSejo(HttpContext httpContext)
         {
-            return _menjaveRecenzentovPrikaz;
+            httpContext.Session.SetString("MenjaveRecenzentov", JsonConvert.SerializeObject(_menjaveRecenzentovPrikaz));
         }
-
-        public List<(int OriginalniRecenzentID, int NadomestniRecenzentID)> GetMenjaveRecenzentov()
-        {
-            Console.WriteLine($"Število menjav: {_menjaveRecenzentov.Count}");
-            return _menjaveRecenzentov;
-        }
+        
     }
 }

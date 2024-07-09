@@ -474,6 +474,79 @@ public class DodeljevanjeRecenzentovService
             return nakljucniRecenzenti;
         }
     }
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public async Task<List<GrozdiViewModel>> PridobiInformacijeZaIzpisAsync()
+    {
+        var grozdi = await _context.Grozdi
+            .Include(g => g.Podpodrocje)
+            .ToListAsync();
+
+        var grozdiViewModels = new List<GrozdiViewModel>();
+
+        foreach (var grozd in grozdi)
+        {
+            var prijavaGrozdi = await _context.PrijavaGrozdi
+                .Include(pg => pg.Prijava)
+                .Where(pg => pg.GrozdID == grozd.GrozdID)
+                .ToListAsync();
+
+            var prijaveInfo = new List<PrijavaViewModel>();
+
+            foreach (var prijavaGrozd in prijavaGrozdi)
+            {
+                var prijava = prijavaGrozd.Prijava;
+                var recenzentiInfo = await _context.GrozdiRecenzenti
+                    .Where(gr => gr.GrozdID == grozd.GrozdID && gr.PrijavaID == prijava.PrijavaID)
+                    .Include(gr => gr.Recenzent)
+                    .Select(gr => new RecenzentInfo
+                    {
+                        RecenzentID = gr.RecenzentID,
+                        Sifra = gr.Recenzent.Sifra,
+                        Priimek = gr.Recenzent.Priimek,
+                        Vloga = gr.Vloga,
+                        Drzava = gr.Recenzent.Drzava
+                    }).ToListAsync();
+
+                prijaveInfo.Add(new PrijavaViewModel
+                {
+                    PrijavaID = prijava.PrijavaID,
+                    StevilkaPrijave = prijava.StevilkaPrijave,
+                    Naslov = prijava.Naslov,
+                    Interdisc = (bool)prijava.Interdisc,
+                    SteviloRecenzentov = prijava.SteviloRecenzentov,
+                    Podpodrocje = prijava.Podpodrocje?.Naziv, // Dodajte preverjanje null, če je potrebno
+                    DodatnoPodpodrocje = prijava.DodatnoPodpodrocje?.Naziv,
+                    PartnerskaAgencija1 = prijava.PartnerskaAgencija1,
+                    PartnerskaAgencija2 = prijava.PartnerskaAgencija2,
+                    Recenzenti = recenzentiInfo
+                });
+            }
+
+            grozdiViewModels.Add(new GrozdiViewModel
+            {
+                GrozdID = grozd.GrozdID,
+                PodpodrocjeNaziv = grozd.Podpodrocje.Naziv,
+                Prijave = prijaveInfo
+            });
+        }
+
+        return grozdiViewModels;
+    }
+
+    public async Task PocistiDodelitveRecenzentovAsync()
+    {
+        // Pridobi vse obstoječe dodelitve recenzentov
+        var vseDodelitve = await _context.GrozdiRecenzenti.ToListAsync();
+
+        // Izbris vseh dodelitev
+        _context.GrozdiRecenzenti.RemoveRange(vseDodelitve);
+        await _context.SaveChangesAsync();
+    }
+
+
+
+
 }
 
 public class PodpodrocjeRecenzentovViewModel

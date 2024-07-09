@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Randomizer.Data;
 using Randomizer.Models;
 using Randomizer.Services;
@@ -230,13 +231,17 @@ public class DodeljevanjeController : Controller
 
     public async Task<IActionResult> ExportMenjaveToExcel()
     {
-        var menjave = _recenzentZavrnitveService.PridobiMenjaveRecenzentov();
+        var menjave = JsonConvert.DeserializeObject<List<MenjavaRecenzentaViewModel>>(HttpContext.Session.GetString("MenjaveRecenzentov"));
+        if (menjave == null || !menjave.Any())
+        {
+            return Content("Ni podatkov za izvoz.");
+        }
 
         using (var workbook = new XLWorkbook())
         {
             var worksheet = workbook.Worksheets.Add("Menjave Recenzentov");
             worksheet.Cell("A1").Value = "Originalni Recenzent ID";
-            worksheet.Cell("B1").Value = "Predlagan Recenzent ID";
+            worksheet.Cell("B1").Value = "Nadomestni Recenzent ID";
             worksheet.Cell("C1").Value = "Prijava ID";
 
             int currentRow = 2;
@@ -274,17 +279,17 @@ public class DodeljevanjeController : Controller
     // Nova metoda za obdelavo zavrnitev in preusmeritev na prikaz zamenjav
     public async Task<IActionResult> ObdelajZavrnitve()
     {
-        await _recenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
+        await _recenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync(HttpContext);
         return RedirectToAction("PrikazZamenjav");
     }
 
     // Nova metoda za prikaz zamenjav
     public IActionResult PrikazZamenjav()
     {
-        var menjave = _recenzentZavrnitveService.PridobiMenjaveRecenzentov();
+        var menjave = JsonConvert.DeserializeObject<List<MenjavaRecenzentaViewModel>>(HttpContext.Session.GetString("MenjaveRecenzentov"));
+        Console.WriteLine("Število menjav za prikaz: " + menjave.Count);
         return View(menjave);
     }
-
     //---------------------------------------------------------------------------------------------------------------------------------------------------
- 
+
 }
