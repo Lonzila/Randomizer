@@ -37,12 +37,20 @@ namespace Randomizer.Services
 
                 if (obstojeceDodelitve.Count == 2)
                 {
-                    var tretjiRecenzent = await IzberiTretjegaRecenzentaAsync(prijava);
+                    var tretjiRecenzenti = await NajdiPotencialneTretjeRecenzenteAsync(prijava);
 
-                    if (tretjiRecenzent != null)
+                    if (tretjiRecenzenti.Any())
                     {
-                        DodeliRecenzentaPrijava(tretjiRecenzent, obstojeceDodelitve[0].GrozdID, prijava.PrijavaID, "Recenzent", 1);
-                        dodelitve.Add((prijava.PrijavaID, prijava.StevilkaPrijave, tretjiRecenzent.RecenzentID, tretjiRecenzent.Sifra));
+                        // Dodeli zadnjega iz seznama potencialnih recenzentov kot dejanskega tretjega recenzenta
+                        var dejanskiTretjiRecenzent = tretjiRecenzenti.Last();
+                        DodeliRecenzentaPrijava(dejanskiTretjiRecenzent, obstojeceDodelitve[0].GrozdID, prijava.PrijavaID, "Recenzent", 1);
+                        dodelitve.Add((prijava.PrijavaID, prijava.StevilkaPrijave, dejanskiTretjiRecenzent.RecenzentID, dejanskiTretjiRecenzent.Sifra));
+
+                        // Izpiši vse potencialne recenzente
+                        foreach (var recenzent in tretjiRecenzenti)
+                        {
+                            Console.WriteLine($"Potencialni tretji recenzent: ID = {recenzent.RecenzentID}, Šifra = {recenzent.Sifra}");
+                        }
                     }
                 }
             }
@@ -51,11 +59,9 @@ namespace Randomizer.Services
             IzpisiInformacijeODodelitvah(dodelitve);
         }
 
-      
-        private async Task<Recenzent> IzberiTretjegaRecenzentaAsync(Prijave prijava)
+        private async Task<List<Recenzent>> NajdiPotencialneTretjeRecenzenteAsync(Prijave prijava)
         {
             var izkljuceniRecenzenti = await PridobiIzkljuceneRecenzente(prijava.PrijavaID);
-
             var partnerskeAgencijeDrzave = await PridobiPartnerskeAgencijeDrzave(prijava);
 
             var potencialniRecenzenti = await _context.Recenzenti
@@ -67,7 +73,8 @@ namespace Randomizer.Services
 
             potencialniRecenzenti = FiltrirajRecenzentePoVlogiInProstoru(potencialniRecenzenti, prijava.PrijavaID);
 
-            return IzberiNakljucnegaRecenzenta(potencialniRecenzenti);
+            // Izberi naključne potencialne recenzente (do 5)
+            return IzberiNakljucneRecenzente(potencialniRecenzenti, 5);
         }
 
         private async Task<List<int>> PridobiIzkljuceneRecenzente(int prijavaID)
@@ -133,10 +140,10 @@ namespace Randomizer.Services
             return potencialniRecenzenti;
         }
 
-        private Recenzent IzberiNakljucnegaRecenzenta(List<Recenzent> recenzenti)
+        private List<Recenzent> IzberiNakljucneRecenzente(List<Recenzent> recenzenti, int stevilo = 5)
         {
             var random = new Random();
-            return recenzenti.OrderBy(x => random.Next()).FirstOrDefault();
+            return recenzenti.OrderBy(x => random.Next()).Take(stevilo).ToList();
         }
 
         private void DodeliRecenzentaPrijava(Recenzent recenzent, int grozdID, int prijavaID, string vloga, int steviloPrijav)

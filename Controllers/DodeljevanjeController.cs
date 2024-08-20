@@ -228,7 +228,7 @@ public class DodeljevanjeController : Controller
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------
-    public async Task<IActionResult> ExportMenjaveToExcel()
+    /*public async Task<IActionResult> ExportMenjaveToExcel()
     {
         var menjave = JsonConvert.DeserializeObject<List<MenjavaRecenzentaViewModel>>(HttpContext.Session.GetString("MenjaveRecenzentov"));
         if (menjave == null || !menjave.Any())
@@ -261,7 +261,64 @@ public class DodeljevanjeController : Controller
                 return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "MenjaveRecenzentov.xlsx");
             }
         }
+    }*/
+    public async Task<IActionResult> ExportMenjaveToExcel()
+    {
+        var menjave = JsonConvert.DeserializeObject<List<MenjavaRecenzentaViewModel>>(HttpContext.Session.GetString("MenjaveRecenzentov"));
+        if (menjave == null || !menjave.Any())
+        {
+            return Content("Ni podatkov za izvoz.");
+        }
+
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("Menjave Recenzentov");
+            worksheet.Cell("A1").Value = "Številka Prijave";
+            worksheet.Cell("B1").Value = "Originalni Recenzent Šifra";
+            worksheet.Cell("C1").Value = "Nadomestni Recenzent 1 Šifra";
+            worksheet.Cell("D1").Value = "Nadomestni Recenzent 1 Ime in Priimek";
+            worksheet.Cell("E1").Value = "Nadomestni Recenzent 2 Šifra";
+            worksheet.Cell("F1").Value = "Nadomestni Recenzent 2 Ime in Priimek";
+            worksheet.Cell("G1").Value = "Nadomestni Recenzent 3 Šifra";
+            worksheet.Cell("H1").Value = "Nadomestni Recenzent 3 Ime in Priimek";
+            worksheet.Cell("I1").Value = "Nadomestni Recenzent 4 Šifra";
+            worksheet.Cell("J1").Value = "Nadomestni Recenzent 4 Ime in Priimek";
+            worksheet.Cell("K1").Value = "Nadomestni Recenzent 5 Šifra";
+            worksheet.Cell("L1").Value = "Nadomestni Recenzent 5 Ime in Priimek";
+
+            int currentRow = 2;
+
+            // Skupina menjav po prijavi in originalnem recenzentu
+            var groupedMenjave = menjave
+                .GroupBy(m => new { m.StevilkaPrijave, m.OriginalniRecenzentSifra })
+                .ToList();
+
+            foreach (var group in groupedMenjave)
+            {
+                worksheet.Cell(currentRow, 1).Value = group.Key.StevilkaPrijave;
+                worksheet.Cell(currentRow, 2).Value = group.Key.OriginalniRecenzentSifra;
+
+                int colIndex = 3;
+
+                foreach (var menjava in group)
+                {
+                    worksheet.Cell(currentRow, colIndex).Value = menjava.NadomestniRecenzentSifra;
+                    worksheet.Cell(currentRow, colIndex + 1).Value = menjava.NadomestniRecenzentImePriimek;
+                    colIndex += 2;
+                }
+
+                currentRow++;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "MenjaveRecenzentov.xlsx");
+            }
+        }
     }
+
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------
     public async Task<IActionResult> DodeliRecenzente()
