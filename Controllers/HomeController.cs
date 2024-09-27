@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using Randomizer.Data;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
+using ClosedXML.Excel;
+using Randomizer.Models.Randomizer.Models;
+
 
 namespace Randomizer.Controllers
 {
@@ -17,14 +20,16 @@ namespace Randomizer.Controllers
         private readonly RecenzentZavrnitveService _recenzentZavrnitveService;
         private readonly GrozdiRecenzentZavrnitveService _grozdiRecenzentZavrnitveService;
         private readonly TretjiRecenzentService _tretjiRecenzentService;
+        private readonly ExcelService _excelService;
         private readonly ApplicationDbContext _context;
 
-        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService, GrozdiRecenzentZavrnitveService grozdiRecenzentZavrnitveService, TretjiRecenzentService tretjiRecenzentService, ApplicationDbContext context)
+        public HomeController(DodeljevanjeRecenzentovService dodeljevanjeRecenzentovService, RecenzentZavrnitveService recenzentZavrnitveService, GrozdiRecenzentZavrnitveService grozdiRecenzentZavrnitveService, TretjiRecenzentService tretjiRecenzentService, ExcelService excelService, ApplicationDbContext context)
         {
             _dodeljevanjeRecenzentovService = dodeljevanjeRecenzentovService;
             _recenzentZavrnitveService = recenzentZavrnitveService;
             _grozdiRecenzentZavrnitveService = grozdiRecenzentZavrnitveService;
             _tretjiRecenzentService = tretjiRecenzentService;
+            _excelService = excelService;
             _context = context;
         }
 
@@ -222,5 +227,72 @@ namespace Randomizer.Controllers
             ViewBag.Message = "Zavrnitev uspešno dodana.";
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> PrimerjajRecenzente(IFormFile excelFile)
+        {
+            if (excelFile == null || excelFile.Length == 0)
+            {
+                ViewBag.Message = "Prosimo, naložite veljavno Excel datoteko.";
+                return View("Index");
+            }
+
+            // Ustvari unikatno ime za datoteko z ustrezno pripono .xlsx
+            var filePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".xlsx");
+
+            // Shrani datoteko v zaèasno mapo
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await excelFile.CopyToAsync(stream);
+            }
+
+            try
+            {
+                // Pridobi podatke iz naložene Excel datoteke
+                var stanjeNaDF = await _excelService.PridobiPodatkeIzExcela(filePath);
+
+                // Pridobi podatke iz baze
+                var grozdiRecenzenti = await _context.GrozdiRecenzenti
+                    .Include(gr => gr.Recenzent)
+                    .Include(gr => gr.Prijava)
+                    .ToListAsync();
+
+                // Seznam za hranjenje primerjav
+                var primerjave = new List<(int StevilkaPrijave, int SifraRecenzentaBaza, int? SifraRecenzentaExcel)>();
+
+                foreach (var grozdRecenzent in grozdiRecenzenti)
+                {
+                    var prijavaExcel = stanjeNaDF.FirstOrDefault(s =>
+                           s.Prijava == grozdRecenzent.Prijava.StevilkaPrijave &&
+                           s.ID == grozdRecenzent.Recenzent.Sifra
+                       );
+
+                    if (prijavaExcel == null)
+                    {
+                        // Èe ujemanja ni, dodaj neujemanje z null
+                        primerjave.Add((grozdRecenzent.Prijava.StevilkaPrijave, grozdRecenzent.Recenzent.Sifra, null));
+                    }
+                }
+
+                // Posreduj primerjave v pogled
+                ViewBag.Primerjave = primerjave;
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = $"Napaka pri obdelavi datoteke: {ex.Message}";
+            }
+            finally
+            {
+                // Po obdelavi izbriši zaèasno datoteko
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+            return View("Index");
+        }
+
     }
+
 }

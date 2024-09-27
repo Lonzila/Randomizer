@@ -55,4 +55,71 @@
     }
 
     <a class="btn btn-info mt-3" href="@Url.Action("PrikaziSteviloPrijav", "Home")">Prikazi število prijav na recenzenta</a>
+
+    <!-- Dodaj obrazec za nalaganje Excel datoteke tukaj -->
+    <h2 class="mt-5">Naloži Excel datoteko za primerjavo recenzentov</h2>
+
+    <form asp-action="PrimerjajRecenzente" asp-controller="Home" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+            <label for="excelFile">Izberite Excel datoteko:</label>
+            <input type="file" name="excelFile" id="excelFile" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Naloži in primerjaj</button>
+    </form>
+
+    <!-- Prikaz neujemanj, če obstajajo -->
+    @if (ViewBag.Primerjave != null)
+    {
+       <!-- Dodaj CSS za izboljšan izgled tabele -->
+        <style>
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+        </style>
+
+        <div>
+            <h2>Podrobna primerjava recenzentov (Baza vs Excel):</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Številka prijave</th>
+                        <th>Šifra recenzenta (Baza)</th>
+                        <th>Šifra recenzenta (Excel)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Primerjave != null)
+                    {
+                        foreach (var primerjava in ViewBag.Primerjave)
+                        {
+                            <tr>
+                                <td>@primerjava.Item1</td> <!-- StevilkaPrijave -->
+                                <td>@primerjava.Item2</td> <!-- SifraRecenzentaBaza -->
+                                <td>@(primerjava.Item3 == null ? "Ni v Excelu" : primerjava.Item3.ToString())</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <!-- Izpiši skupno število neujemanj -->
+            <div style="margin-top: 20px;">
+                <strong>Število neujemanj: @ViewBag.Primerjave.Count</strong>
+            </div>
+        </div>
+    }
 </div>

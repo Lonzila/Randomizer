@@ -13,6 +13,7 @@ builder.Services.AddScoped<DodeljevanjeRecenzentovService>();
 builder.Services.AddScoped<TretjiRecenzentService>();
 builder.Services.AddScoped<RecenzentZavrnitveService>();
 builder.Services.AddScoped<GrozdiRecenzentZavrnitveService>();
+builder.Services.AddScoped<ExcelService>();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
