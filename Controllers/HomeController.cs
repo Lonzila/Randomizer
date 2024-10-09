@@ -6,11 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Randomizer.Data;
-using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 using ClosedXML.Excel;
 using Randomizer.Models.Randomizer.Models;
-
 
 namespace Randomizer.Controllers
 {
@@ -38,15 +36,10 @@ namespace Randomizer.Controllers
             return View();
         }
 
-        public IActionResult VnosZavrnitve()
+     
+        public async Task<IActionResult> UpravljanjeRecenzentov()
         {
             return View();
-        }
-
-        public async Task<IActionResult> DodeliRecenzente()
-        {
-            await _dodeljevanjeRecenzentovService.DodeliRecenzenteAsync();
-            return RedirectToAction("PrikazGrozdov", "Dodeljevanje");
         }
 
         public async Task<IActionResult> PocistiDodelitve()
@@ -55,30 +48,46 @@ namespace Randomizer.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult VnosZavrnitve()
+        {
+            return View();
+        }
+        public IActionResult PrimerjajRecenzente()
+        {
+            return View();
+        }
+        public IActionResult Iskanje()
+        {
+            return View();
+        }
+        [HttpGet]
+        public async Task<IActionResult> PrikazGrozdov()
+        {
+            var grozdiViewModels = await _dodeljevanjeRecenzentovService.PridobiInformacijeZaIzpisAsync();
+            return View(grozdiViewModels);
+        }
+        // Prikaz posodobljenih recenzentov po zavrnitvah (metoda ostane nespremenjena)
         public async Task<IActionResult> PrikazPosodobljenihRecenzentov()
         {
             var grozdiViewModels = await _dodeljevanjeRecenzentovService.PridobiInformacijeZaIzpisAsync();
-            return View("~/Views/Dodeljevanje/PrikazGrozdov.cshtml", grozdiViewModels);
+            return View("~/Views/Home/PrikazGrozdov.cshtml", grozdiViewModels);
         }
 
-        /*public async Task<IActionResult> ObdelajZavrnitve()
-        {
-            await _recenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
-            return RedirectToAction("PrikazPosodobljenihRecenzentov");
-        }*/
-
+        // Metoda za obdelavo zavrnitev grozda
         public async Task<IActionResult> ObdelajZavrnitveGrozda()
         {
             await _grozdiRecenzentZavrnitveService.ObdelajZavrnitveInDodeliNoveRecenzenteAsync();
             return RedirectToAction("PrikazPosodobljenihRecenzentov");
         }
 
+        // Dodelitev tretjega recenzenta (dodano ustrezno preusmerjanje)
         [HttpPost]
         public async Task<IActionResult> DodeliTretjegaRecenzenta(string prijavaIDs)
         {
             if (string.IsNullOrEmpty(prijavaIDs))
             {
-                return RedirectToAction("Index");
+                ViewBag.Message = "ID-ji prijav niso bili podani.";
+                return View("Index");
             }
 
             var prijavaIDsList = prijavaIDs.Split(',')
@@ -89,20 +98,22 @@ namespace Randomizer.Controllers
 
             if (!prijavaIDsList.Any())
             {
-                return RedirectToAction("Index");
+                ViewBag.Message = "Noben veljaven ID prijave ni bil podan.";
+                return View("Index");
             }
 
             await _tretjiRecenzentService.DodeliTretjegaRecenzentaAsync(prijavaIDsList);
             return RedirectToAction("PrikazPosodobljenihRecenzentov");
         }
 
+        // Metoda za iskanje recenzenta (POST)
         [HttpPost]
         public async Task<IActionResult> IskanjeRecenzenta(string sifraRecenzenta)
         {
             if (!int.TryParse(sifraRecenzenta, out int sifraRecenzentaInt))
             {
                 ViewBag.Message = "Neveljavna šifra recenzenta.";
-                return View("Index");
+                return View("Iskanje");
             }
 
             var recenzent = await _context.Recenzenti
@@ -110,24 +121,24 @@ namespace Randomizer.Controllers
             .Select(r => new { r.RecenzentID, r.Sifra })
             .FirstOrDefaultAsync();
 
-
             if (recenzent == null)
             {
                 ViewBag.Message = "Recenzent ni bil najden.";
-                return View("Index");
+                return View("Iskanje");
             }
 
             ViewBag.RecenzentID = recenzent.RecenzentID;
-            return View("Index");
+            return View("Iskanje");
         }
 
+        // Metoda za iskanje prijave (POST)
         [HttpPost]
         public async Task<IActionResult> IskanjePrijave(string stevilkaPrijave)
         {
             if (!int.TryParse(stevilkaPrijave, out int stevilkaPrijaveInt))
             {
                 ViewBag.Message = "Neveljavna številka prijave.";
-                return View("Index");
+                return View("Iskanje");
             }
 
             var prijava = await _context.Prijave
@@ -138,14 +149,15 @@ namespace Randomizer.Controllers
             if (prijava == null)
             {
                 ViewBag.Message = "Prijava ni bila najdena.";
-                return View("Index");
+                return View("Iskanje");
             }
 
             ViewBag.PrijavaID = prijava.PrijavaID;
-            return View("Index");
+            return View("Iskanje");
         }
 
-        public async Task<IActionResult> PrikaziSteviloPrijav()
+        // Metoda za prikaz števila prijav na recenzenta
+        public async Task<IActionResult> PrikazSteviloPrijav()
         {
             var rezultati = await _context.GrozdiRecenzenti
                 .Join(_context.Recenzenti, gr => gr.RecenzentID, r => r.RecenzentID, (gr, r) => new { gr, r })
@@ -163,6 +175,7 @@ namespace Randomizer.Controllers
             return View(rezultati);
         }
 
+        // Metoda za vnos zavrnitve
         [HttpPost]
         public async Task<IActionResult> VnosZavrnitve(string sifraRecenzenta, string stevilkaPrijave, string razlogZavrnitve)
         {
@@ -190,10 +203,7 @@ namespace Randomizer.Controllers
             }
 
             var prijava = await _context.Prijave
-                .Where(p => p.StevilkaPrijave == stevilkaPrijaveInt)
-                .Select(p => new { p.PrijavaID, p.StevilkaPrijave })
-                .FirstOrDefaultAsync();
-
+                .Where(p => p.StevilkaPrijave == stevilkaPrijaveInt).Select(p => new { p.PrijavaID, p.StevilkaPrijave }).FirstOrDefaultAsync();
             if (prijava == null)
             {
                 ViewBag.Message = "Prijava ni bila najdena.";
@@ -218,8 +228,6 @@ namespace Randomizer.Controllers
                 GrozdID = grozdRecenzent.GrozdID,
                 Razlog = razlogZavrnitve
             };
-            // Izpiši zavrnitev v konzolo
-            Console.WriteLine($"ID: {zavrnitev.ID}, RecenzentID: {zavrnitev.RecenzentID}, PrijavaID: {zavrnitev.PrijavaID}, GrozdID: {zavrnitev.GrozdID}, Razlog: {zavrnitev.Razlog}");
 
             _context.RecenzentiZavrnitve.Add(zavrnitev);
             await _context.SaveChangesAsync();
@@ -228,13 +236,14 @@ namespace Randomizer.Controllers
             return View();
         }
 
+        // Metoda za nalaganje in primerjavo Excel datotek
         [HttpPost]
         public async Task<IActionResult> PrimerjajRecenzente(IFormFile excelFile)
         {
             if (excelFile == null || excelFile.Length == 0)
             {
                 ViewBag.Message = "Prosimo, naložite veljavno Excel datoteko.";
-                return View("Index");
+                return View("PrimerjajRecenzente");
             }
 
             // Ustvari unikatno ime za datoteko z ustrezno pripono .xlsx
@@ -264,17 +273,14 @@ namespace Randomizer.Controllers
                 {
                     var prijavaExcel = stanjeNaDF.FirstOrDefault(s =>
                            s.Prijava == grozdRecenzent.Prijava.StevilkaPrijave &&
-                           s.ID == grozdRecenzent.Recenzent.Sifra
-                       );
+                           s.ID == grozdRecenzent.Recenzent.Sifra);
 
                     if (prijavaExcel == null)
                     {
-                        // Èe ujemanja ni, dodaj neujemanje z null
                         primerjave.Add((grozdRecenzent.Prijava.StevilkaPrijave, grozdRecenzent.Recenzent.Sifra, null));
                     }
                 }
 
-                // Posreduj primerjave v pogled
                 ViewBag.Primerjave = primerjave;
             }
             catch (Exception ex)
@@ -290,9 +296,7 @@ namespace Randomizer.Controllers
                 }
             }
 
-            return View("Index");
+            return View("PrimerjajRecenzente");
         }
-
     }
-
 }

@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Upravljanje Recenzentov";
+}
+
+<h2>Upravljanje Recenzentov</h2>
+
+<div class="text-center">
+    <!-- Gumb za začetek dodeljevanja recenzentov -->
+    <a class="btn btn-primary" href="@Url.Action("DodeliRecenzente", "Home")">Začni dodeljevanje recenzentov</a>
+    <p class="mt-2">Kliknite tukaj, da samodejno dodelite recenzente k prijavam. Sistem bo na podlagi določenih kriterijev dodelil recenzente za vsako prijavo.</p>
+
+    <!-- Gumb za čiščenje vseh dodelitev -->
+    <a class="btn btn-danger" href="@Url.Action("PocistiDodelitve", "Home")">Počisti dodelitve recenzentov</a>
+    <p class="mt-2">Kliknite tukaj, da izbrišete vse trenutno dodeljene recenzente iz prijav. To funkcijo uporabite, če želite ponastaviti vse dodelitve in začeti znova.</p>
+
+    <!-- Obrazec za dodelitev tretjega recenzenta -->
+    <form asp-action="DodeliTretjegaRecenzenta" method="post" class="mt-3">
+        <div class="form-group">
+            <label for="prijavaIDs">Vnesite ID-je prijav (ločene z vejico):</label>
+            <input type="text" class="form-control" id="prijavaIDs" name="prijavaIDs" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Dodeli tretjega recenzenta</button>
+    </form>
+    <p class="mt-2">Vnesite ID-je prijav, za katere želite dodeliti tretjega recenzenta. Sistem bo poiskal ustrezne prijave in dodelil dodatnega recenzenta.</p>
+
+    <!-- Gumbi za obdelavo zavrnitev -->
+    <a class="btn btn-primary mt-3" href="@Url.Action("ObdelajZavrnitve", "Dodeljevanje")">Obdelaj zavrnitve recenzentov</a>
+    <p class="mt-2">Kliknite tukaj, da obdelate vse zavrnitve recenzentov in dodelite nove recenzente v primeru zavrnitev.</p>
+
+    <a class="btn btn-primary mt-3" href="@Url.Action("ObdelajZavrnitveGrozda", "Home")">Obdelaj zavrnitve grozdov</a>
+    <p class="mt-2">Kliknite tukaj, da obdelate zavrnitve celotnih grozdov in dodelite nove recenzente za vse prijave v grozdu.</p>
+</div>

@@ -1,125 +1,25 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Domov";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <a class="btn btn-primary" href="@Url.Action("DodeliRecenzente", "Home")">Začni dodeljevanje recenzentov</a>
-    <a class="btn btn-danger" href="@Url.Action("PocistiDodelitve", "Home")">Počisti dodelitve recenzentov</a>
-    <a href="@Url.Action("ObdelajZavrnitve", "Dodeljevanje")" class="btn btn-primary">Obdelaj zavrnitve recenzentov</a>
-    <a href="@Url.Action("ObdelajZavrnitveGrozda", "Home")" class="btn btn-primary">Obdelaj zavrnitve grozda recenzentov</a>
+    <h1 class="display-4">Dobrodošli v sistemu za dodeljevanje recenzentov</h1>
+    <p class="lead">Uporabite navigacijo na levi strani za dostop do različnih funkcionalnosti.</p>
 
-    <form asp-action="DodeliTretjegaRecenzenta" method="post" class="mt-3">
-        <div class="form-group">
-            <label for="prijavaIDs">Vnesite ID-je prijav (ločene z vejico):</label>
-            <input type="text" class="form-control" id="prijavaIDs" name="prijavaIDs" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Dodeli tretjega recenzenta</button>
-    </form>
+    <div class="mt-4">
+        <h2>Splošne informacije</h2>
+        <p>Ta aplikacija vam omogoča upravljanje recenzentov, prijav in zavrnitev.</p>
+        <p>Lahko izberete posamezne funkcionalnosti v meniju na levi strani za upravljanje recenzentov, obdelavo zavrnitev, in primerjavo podatkov z Excel datotekami.</p>
+    </div>
 
-    <form asp-action="IskanjeRecenzenta" method="post" class="mt-3">
-        <div class="form-group">
-            <label for="sifraRecenzenta">Šifra recenzenta:</label>
-            <input type="text" class="form-control" id="sifraRecenzenta" name="sifraRecenzenta" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Išči recenzenta</button>
-    </form>
+    <div class="mt-4">
+        <h2>Hiter dostop</h2>
+        <a class="btn btn-primary" href="@Url.Action("DodeliRecenzente", "Home")">Začni dodeljevanje recenzentov</a>
+        <a class="btn btn-danger" href="@Url.Action("PocistiDodelitve", "Home")">Počisti dodelitve recenzentov</a>
+    </div>
 
-    @if (ViewBag.RecenzentID != null)
-    {
-        <div class="alert alert-success mt-3">
-            Recenzent ID: @ViewBag.RecenzentID
-        </div>
-    }
-
-    <form asp-action="IskanjePrijave" method="post" class="mt-3">
-        <div class="form-group">
-            <label for="stevilkaPrijave">Številka prijave:</label>
-            <input type="text" class="form-control" id="stevilkaPrijave" name="stevilkaPrijave" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Išči prijavo</button>
-    </form>
-
-    @if (ViewBag.PrijavaID != null)
-    {
-        <div class="alert alert-success mt-3">
-            Prijava ID: @ViewBag.PrijavaID
-        </div>
-    }
-
-    @if (!string.IsNullOrEmpty(ViewBag.Message))
-    {
-        <div class="alert alert-danger mt-3">
-            @ViewBag.Message
-        </div>
-    }
-
-    <a class="btn btn-info mt-3" href="@Url.Action("PrikaziSteviloPrijav", "Home")">Prikazi število prijav na recenzenta</a>
-
-    <!-- Dodaj obrazec za nalaganje Excel datoteke tukaj -->
-    <h2 class="mt-5">Naloži Excel datoteko za primerjavo recenzentov</h2>
-
-    <form asp-action="PrimerjajRecenzente" asp-controller="Home" enctype="multipart/form-data" method="post">
-        <div class="form-group">
-            <label for="excelFile">Izberite Excel datoteko:</label>
-            <input type="file" name="excelFile" id="excelFile" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">Naloži in primerjaj</button>
-    </form>
-
-    <!-- Prikaz neujemanj, če obstajajo -->
-    @if (ViewBag.Primerjave != null)
-    {
-       <!-- Dodaj CSS za izboljšan izgled tabele -->
-        <style>
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            table, th, td {
-                border: 1px solid black;
-            }
-            th, td {
-                padding: 8px;
-                text-align: left;
-            }
-            th {
-                background-color: #f2f2f2;
-            }
-            tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
-        </style>
-
-        <div>
-            <h2>Podrobna primerjava recenzentov (Baza vs Excel):</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Številka prijave</th>
-                        <th>Šifra recenzenta (Baza)</th>
-                        <th>Šifra recenzenta (Excel)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (ViewBag.Primerjave != null)
-                    {
-                        foreach (var primerjava in ViewBag.Primerjave)
-                        {
-                            <tr>
-                                <td>@primerjava.Item1</td> <!-- StevilkaPrijave -->
-                                <td>@primerjava.Item2</td> <!-- SifraRecenzentaBaza -->
-                                <td>@(primerjava.Item3 == null ? "Ni v Excelu" : primerjava.Item3.ToString())</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-
-            <!-- Izpiši skupno število neujemanj -->
-            <div style="margin-top: 20px;">
-                <strong>Število neujemanj: @ViewBag.Primerjave.Count</strong>
-            </div>
-        </div>
-    }
+    <div class="mt-4">
+        <h2>Navodila</h2>
+        <p>Za več informacij o tem, kako uporabljati sistem, si oglejte razdelek o dodeljevanju recenzentov, obdelavi zavrnitev in drugih funkcionalnostih.</p>
+    </div>
 </div>

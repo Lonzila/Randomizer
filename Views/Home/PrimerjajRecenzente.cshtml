@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Primerjaj Recenzente";
+}
+
+<h2>Naloži Excel datoteko za primerjavo recenzentov</h2>
+
+<div class="text-center">
+    <form asp-action="PrimerjajRecenzente" asp-controller="Home" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+            <label for="excelFile">Izberite Excel datoteko:</label>
+            <input type="file" name="excelFile" id="excelFile" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Naloži in primerjaj</button>
+    </form>
+    <p class="mt-3">Izberite Excel datoteko z recenzenti, ki jo želite primerjati z bazo podatkov. Sistem bo izvedel primerjavo in prikazal morebitna neskladja.</p>
+</div>
+
+<!-- Prikaz rezultatov primerjave -->
+@if (ViewBag.Primerjave != null)
+{
+    <div class="mt-5">
+        <h2>Podrobna primerjava recenzentov (Baza vs Excel):</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Številka prijave</th>
+                    <th>Šifra recenzenta (Baza)</th>
+                    <th>Šifra recenzenta (Excel)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var primerjava in ViewBag.Primerjave)
+                {
+                    <tr>
+                        <td>@primerjava.Item1</td> <!-- StevilkaPrijave -->
+                        <td>@primerjava.Item2</td> <!-- SifraRecenzentaBaza -->
+                        <td>@(primerjava.Item3 == null ? "Ni v Excelu" : primerjava.Item3.ToString())</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="mt-3">
+            <strong>Število neujemanj: @ViewBag.Primerjave.Count</strong>
+        </div>
+    </div>
+}
+
