@@ -35,16 +35,14 @@
                     <a class="nav-link text-dark" asp-controller="Home" asp-action="PrimerjajRecenzente">Primerjava Trenutnega Stanja</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Home" asp-action="PrikazSteviloPrijav">Prikaz Števila Menjav</a>
+                    <a class="nav-link text-dark" asp-controller="Home" asp-action="PrikazSteviloPrijav">Prikaz Števila Prijav na Recenzenta</a>
                 </li>
             </ul>
         </nav>
 
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="content" style="margin-left: 250px;">
+        @RenderBody()
     </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
